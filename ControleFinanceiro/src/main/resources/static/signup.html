@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Controle Financeiro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        .demo-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .card-shadow {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .input-error {
+            border-bottom: 2px solid red;
+            outline: none;
+        }
+        .input-focus:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+    </style>
+    <style>@view-transition { navigation: auto; }</style>
+</head>
+<body class="h-full w-full">
+<main id="app" class="h-full w-full overflow-auto" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="demo-badge text-white text-center py-3 px-4 font-semibold text-sm">
+        💹 CONTROLE FINANCEIRO - Este é um sistema para controlar seu dia-a-dia financeiro
+    </div>
+    <div class="flex items-center justify-center min-h-[calc(100%-48px)] p-6">
+        <div class="w-full max-w-md">
+            <div id="signupCard" class="bg-white rounded-2xl p-8 card-shadow">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold mb-2" style="color: #1a202c;">Criar Conta</h1>
+                    <p class="text-gray-600">Junte-se a nós hoje!</p>
+                    <p id="mensagem"></p>
+                </div>
+                <form id="signupForm" onsubmit="return false;">
+                    <div class="mb-4"><label for="nome" class="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label> <input type="text" id="nome" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="Seu nome">
+                    </div>
+                    <div class="mb-4"><label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label> <input type="email" id="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="seu@email.com">
+                    </div>
+                    <div class="mb-4"><label for="cadastroUsuario" class="block text-sm font-medium text-gray-700 mb-2">Usuário</label> <input type="text" id="cadastroUsuario" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="Seu nome">
+                    </div>
+                    <div class="mb-4"><label for="cadastroSenha" class="block text-sm font-medium text-gray-700 mb-2">Senha</label> <input type="password" id="cadastroSenha" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="••••••••">
+                    </div>
+                    <div class="mb-6"><label for="cadastroSenha" class="block text-sm font-medium text-gray-700 mb-2">Confirmar Senha</label> <input type="password" id="cadastroSenhaConfirm" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="••••••••">
+                    </div><button id="signupButton" type="submit" class="w-full text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg" style="background-color: #667eea;"> Criar Conta </button>
+                    <p class="text-center mt-6 text-gray-600">Já tem uma conta? <a href="index.html" class="font-semibold hover:underline" style="color: #667eea;"> Entrar </a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    document.getElementById("signupForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        // pega os campos
+        const nome = document.getElementById("nome");
+        const email = document.getElementById("email");
+        const usuario = document.getElementById("cadastroUsuario");
+        const senha = document.getElementById("cadastroSenha");
+        const senhaConfirm = document.getElementById("cadastroSenhaConfirm");
+
+        // remove erros anteriores
+        [nome, email, usuario, senha, senhaConfirm].forEach(campo => campo.classList.remove("input-error"));
+
+        let valido = true;
+
+        // valida campos obrigatórios
+        [nome, email, usuario, senha, senhaConfirm].forEach(campo => {
+            if (!campo.value.trim()) {
+                campo.classList.add("input-error"); // aplica borda/sublinhado vermelho
+                valido = false;
+            }
+        });
+
+        // valida senha
+        if (senha.value.trim() !== senhaConfirm.value.trim()) {
+            senha.classList.add("input-error");
+            senhaConfirm.classList.add("input-error");
+            document.getElementById("mensagem").innerText = "⚠️ As senhas não conferem.";
+            valido = false;
+        }
+
+        if (!valido) {
+            document.getElementById("mensagem").innerText = "⚠️ Preencha todos os campos corretamente.";
+            return;
+        }
+
+        // se passou na validação, envia
+        const user = {
+            nome: nome.value.trim(),
+            email: email.value.trim(),
+            usuario: usuario.value.trim(),
+            senha: senha.value.trim()
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(user)
+            });
+
+            if (response.ok) {
+                const mensagem = await response.text();
+                sessionStorage.setItem("signupSuccess", "✅ Conta criada com sucesso!");
+                window.location.href = "index.html";
+            } else {
+                document.getElementById("mensagem").innerText = "❌ Erro ao criar conta. Tente novamente.";
+            }
+        } catch (error) {
+            document.getElementById("mensagem").innerText = "❌ Falha na conexão com o servidor.";
+        }
+    });
+</script>
+</body>
+</html>
