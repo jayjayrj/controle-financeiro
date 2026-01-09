@@ -20,6 +20,5 @@ public class BancoConverter {
                 .nome(bancoDTO.getNome())
                 .numero(bancoDTO.getNumero())
                 .build();
-
     }
 }

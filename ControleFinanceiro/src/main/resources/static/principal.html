@@ -81,6 +81,17 @@
         .stagger-2 { animation-delay: 0.2s; opacity: 0; }
         .stagger-3 { animation-delay: 0.3s; opacity: 0; }
         .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td, th {
+            text-align: center;   /* centraliza horizontalmente */
+            vertical-align: middle; /* centraliza verticalmente */
+            padding: 8px;
+        }
     </style>
     <style>@view-transition { navigation: auto; }</style>
     <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -245,33 +256,77 @@
     const sortByBanco = "nome";
 
     async function carregarBancos(page) {
+        console.log("Entrei no carregarBancos");
         try {
-            const response = await fetch(`http://localhost:8080/bancos?page=${page}&size=${pageSizeBanco}&sortBy=${sortByBanco}`);
+            const response = await fetch(`http://localhost:8080/banco?page=${page}&size=${pageSizeBanco}&sortBy=${sortByBanco}`);
+            console.log("Fiz a consulta");
             if (!response.ok) throw new Error("Erro ao buscar bancos");
 
             const data = await response.json(); // objeto Page do Spring
-            const lista = document.getElementById("lista-bancos");
-            lista.innerHTML = "";
+            const tabela = document.getElementById("tabela-bancos");
+            tabela.innerHTML = "";
 
-            // renderiza os bancos
+            // renderiza os bancos em formato de tabela
             data.content.forEach(banco => {
-                const li = document.createElement("li");
-                li.textContent = `${banco.id} - ${banco.nome}`;
-                lista.appendChild(li);
+                console.log("Entrei no for");
+                const tr = document.createElement("tr");
+
+                // coluna editar
+                const tdEditar = document.createElement("td");
+                tdEditar.innerHTML = `<span style="cursor:pointer">✏️</span>`;
+                tdEditar.onclick = () => editarBanco(banco.id);
+
+                // coluna excluir
+                const tdExcluir = document.createElement("td");
+                tdExcluir.innerHTML = `<span style="cursor:pointer">🗑️</span>`;
+                tdExcluir.onclick = () => excluirBanco(banco.id);
+
+                // coluna número
+                const tdNumero = document.createElement("td");
+                tdNumero.textContent = banco.numero;
+
+                // coluna nome
+                const tdNome = document.createElement("td");
+                tdNome.textContent = banco.nome;
+
+                tr.appendChild(tdEditar);
+                tr.appendChild(tdExcluir);
+                tr.appendChild(tdNumero);
+                tr.appendChild(tdNome);
+
+                tabela.appendChild(tr);
             });
 
-            // atualiza info de paginação
+            // paginação
             document.getElementById("pageInfo").innerText =
                 `Página ${data.number + 1} de ${data.totalPages}`;
-
-            // controla botões
             document.getElementById("prevBtn").disabled = data.first;
             document.getElementById("nextBtn").disabled = data.last;
 
             currentPageBanco = data.number;
         } catch (error) {
-            document.getElementById("lista-bancos").innerHTML =
-                "<li>❌ Não foi possível carregar os bancos.</li>";
+            document.getElementById("tabela-bancos").innerHTML =
+                "<tr><td colspan='4'>❌ Não foi possível carregar os bancos.</td></tr>";
+        }
+
+        // funções de ação
+        function editarBanco(id) {
+            alert("Editar banco com ID: " + id);
+            // aqui você pode abrir modal ou redirecionar para página de edição
+        }
+
+        function excluirBanco(id) {
+            if (confirm("Deseja realmente excluir o banco ID " + id + "?")) {
+                fetch(`http://localhost:8080/bancos/${id}`, { method: "DELETE" })
+                    .then(resp => {
+                        if (resp.ok) {
+                            alert("✅ Banco excluído com sucesso!");
+                            carregarBancos(currentPageBanco); // recarrega a página atual
+                        } else {
+                            alert("❌ Erro ao excluir banco.");
+                        }
+                    });
+            }
         }
 
         // eventos dos botões
@@ -324,6 +379,12 @@
                 console.log("O módulo é Perfil")
                 const usuarioLogado = sessionStorage.getItem("usuarioLogado");
                 carregarUsuario(usuarioLogado);
+            }
+        } else if (acao === "listar") {
+            console.log("A ação é Listar")
+            if (modulo === "banco") {
+                console.log("O módulo é Banco")
+                carregarBancos(0);
             }
         }
 
@@ -408,7 +469,7 @@
         verificaUsuarioLogado();
     });
 
-    async function salvarEdicao() {
+    async function salvarEdicaoPerfil() {
         // pega os campos
         const nome = document.getElementById("nome");
         const email = document.getElementById("email");
@@ -473,7 +534,7 @@
         }
     }
 
-    async function salvarExclusao() {
+    async function salvarExclusaoPerfil() {
         console.log("salvarExclusao");
         const resposta = confirm("Deseja realmente excluir o perfil e perder o acesso ao sistema?");
         if (!resposta) {
@@ -498,6 +559,58 @@
                 window.location.href = "index.html";
             } else {
                 document.getElementById("feedback-message").innerText = "❌ Erro ao excluir o perfil. Tente novamente.";
+            }
+        } catch (error) {
+            document.getElementById("feedback-message").innerText = "❌ Falha na conexão com o servidor.";
+        }
+    }
+
+    async function salvarInclusaoBanco() {
+        // pega os campos
+        const nome = document.getElementById("nome");
+        const numero = document.getElementById("numero");
+
+        // remove erros anteriores
+        [nome, numero].forEach(campo => campo.classList.remove("input-error"));
+
+        let valido = true;
+
+        // valida campos obrigatórios
+        [nome, numero].forEach(campo => {
+            if (!campo.value.trim()) {
+                campo.classList.add("input-error"); // aplica borda/sublinhado vermelho
+                valido = false;
+            }
+        });
+
+        if (!valido) {
+            document.getElementById("feedback-message").innerText = "⚠️ Preencha todos os campos corretamente.";
+            return;
+        }
+
+        // se passou na validação, envia
+        const banco = {
+            nome: nome.value.trim(),
+            numero: numero.value.trim()
+        };
+
+        try {
+            const usuarioLogado = sessionStorage.getItem("usuarioLogado");
+            if (!usuarioLogado) {
+                sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
+                window.location.href = "index.html";
+            }
+            const response = await fetch("http://localhost:8080/banco", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(banco)
+            });
+
+            if (response.ok) {
+                const mensagem = await response.text();
+                document.getElementById("feedback-message").innerText = "✅ Conta criada com sucesso!";
+            } else {
+                document.getElementById("feedback-message").innerText = "❌ Erro ao criar conta. Tente novamente.";
             }
         } catch (error) {
             document.getElementById("feedback-message").innerText = "❌ Falha na conexão com o servidor.";
