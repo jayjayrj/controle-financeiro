@@ -15,9 +15,7 @@ public class ControleFinanceiroApplication {
 
     @Bean
     CommandLineRunner testMongo(MongoTemplate mongoTemplate) {
-        return args -> {
-            System.out.println("Banco conectado: " + mongoTemplate.getDb().getName());
-        };
+        return args -> System.out.println("Banco conectado: " + mongoTemplate.getDb().getName());
     }
 
 }
