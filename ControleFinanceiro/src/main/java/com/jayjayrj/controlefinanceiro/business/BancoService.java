@@ -6,6 +6,7 @@ import com.jayjayrj.controlefinanceiro.api.response.BancoResponseDTO;
 import com.jayjayrj.controlefinanceiro.infrastructure.entity.BancoEntity;
 import com.jayjayrj.controlefinanceiro.infrastructure.exceptions.BusinessException;
 import com.jayjayrj.controlefinanceiro.infrastructure.repository.BancoRepository;
+import com.mongodb.DuplicateKeyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.util.Assert.notNull;
 
@@ -38,6 +39,8 @@ public class BancoService {
             notNull(bancoRequestDTO, "Os dados do banco são obrigatórios");
             BancoEntity bancoEntity = salvaBanco(bancoConverter.paraBancoEntity(bancoRequestDTO));
             return bancoMapper.paraBancoResponseDTO(bancoEntity);
+        } catch (DuplicateKeyException e) {
+            throw new RuntimeException("Banco já existe com esse id, nome ou número.");
         } catch (Exception e) {
             throw new BusinessException("Erro ao gravar dados de banco", e);
         }
@@ -48,6 +51,13 @@ public class BancoService {
         BancoEntity entity = bancoRepository.findByNome(banco);
 
         return entity != null ? bancoMapper.paraBancoResponseDTO(entity) : null;
+    }
+
+    public BancoResponseDTO buscaDadosBancoPorId(Integer id) {
+        System.out.println("Entrei no BancoService.buscaDadosBancoPorId()");
+        Optional<BancoEntity> entity = bancoRepository.findById(id);
+
+        return entity.map(bancoMapper::paraBancoResponseDTO).orElse(null);
     }
 
     public Page<BancoResponseDTO> listarBancos(int page, int size, String sortBy) {
@@ -61,4 +71,36 @@ public class BancoService {
         return entityPage.map(bancoMapper::paraBancoResponseDTO);
     }
 
+    public BancoResponseDTO atualizarBanco(Integer id, BancoRequestDTO bancoRequestDTO) {
+        Optional<BancoEntity> entityOpt = bancoRepository.findById(id);
+
+        if (entityOpt.isPresent()) {
+            BancoEntity entity = entityOpt.get();
+
+            // Verifica duplicação de email
+            BancoEntity existenteNome = bancoRepository.findByNome(bancoRequestDTO.getNome());
+            if (existenteNome != null && !existenteNome.getId().equals(id)) {
+                throw new RuntimeException("Já existe um banco com este nome.");
+            }
+
+            // Verifica duplicação de banco (login)
+            BancoEntity existenteBanco = bancoRepository.findByNumero(bancoRequestDTO.getNumero());
+            if (existenteBanco != null && !existenteBanco.getId().equals(id)) {
+                throw new RuntimeException("Já existe um banco com este número.");
+            }
+
+            // Atualiza os campos necessários
+            entity.setNome(bancoRequestDTO.getNome());
+            entity.setNumero(bancoRequestDTO.getNumero());
+
+            BancoEntity atualizado = bancoRepository.save(entity);
+            return bancoMapper.paraBancoResponseDTO(atualizado);
+        }
+
+        throw new RuntimeException("Banco não encontrado!");
+    }
+
+    public void deletaDadosBanco(Integer id) {
+        bancoRepository.deleteById(id);
+    }
 }

@@ -6,6 +6,7 @@ import com.jayjayrj.controlefinanceiro.api.response.UsuarioResponseDTO;
 import com.jayjayrj.controlefinanceiro.infrastructure.entity.UsuarioEntity;
 import com.jayjayrj.controlefinanceiro.infrastructure.exceptions.BusinessException;
 import com.jayjayrj.controlefinanceiro.infrastructure.repository.UsuarioRepository;
+import com.mongodb.DuplicateKeyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,8 @@ public class UsuarioService {
             notNull(usuarioRequestDTO, "Os dados do usuário são obrigatórios");
             UsuarioEntity usuarioEntity = salvaUsuario(usuarioConverter.paraUsuarioEntity(usuarioRequestDTO));
             return usuarioMapper.paraUsuarioResponseDTO(usuarioEntity);
+        } catch (DuplicateKeyException e) {
+            throw new RuntimeException("Usuário já existe com esse id, nome, usuário ou email.");
         } catch (Exception e) {
             throw new BusinessException("Erro ao gravar dados de usuário", e);
         }
@@ -60,6 +63,19 @@ public class UsuarioService {
 
         if (entityOpt.isPresent()) {
             UsuarioEntity entity = entityOpt.get();
+
+            // Verifica duplicação de email
+            UsuarioEntity existenteEmail = usuarioRepository.findByEmail(usuarioRequestDTO.getEmail());
+            if (existenteEmail != null && !existenteEmail.getId().equals(id)) {
+                throw new RuntimeException("Já existe um usuário com este email.");
+            }
+
+            // Verifica duplicação de usuario (login)
+            UsuarioEntity existenteUsuario = usuarioRepository.findByUsuario(usuarioRequestDTO.getUsuario());
+            if (existenteUsuario != null && !existenteUsuario.getId().equals(id)) {
+                throw new RuntimeException("Já existe um usuário com este nome de usuário.");
+            }
+
             // Atualiza os campos necessários
             entity.setNome(usuarioRequestDTO.getNome());
             entity.setEmail(usuarioRequestDTO.getEmail());
@@ -70,7 +86,7 @@ public class UsuarioService {
             return usuarioMapper.paraUsuarioResponseDTO(atualizado);
         }
 
-        return null; // ou lançar exceção
+        throw new RuntimeException("Usuário não encontrado!");
     }
 
     public void deletaDadosUsuario(Integer id) {

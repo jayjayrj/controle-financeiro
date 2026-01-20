@@ -10,10 +10,9 @@ public interface UsuarioRepository extends MongoRepository<UsuarioEntity, Intege
 
     UsuarioEntity findByEmail(String email);
 
-    UsuarioEntity findByUsuarioAndSenha(String email, String senha);
+    UsuarioEntity findByUsuario(String usuario);
 
-    @Transactional
-    void deleteByEmail(String email);
+    UsuarioEntity findByUsuarioAndSenha(String email, String senha);
 
     List<UsuarioEntity> id(Integer id);
 }
