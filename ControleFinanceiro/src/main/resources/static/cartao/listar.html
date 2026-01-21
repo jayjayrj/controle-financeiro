@@ -1,0 +1,23 @@
+<h1>📋 Cartões cadastrados</h1>
+<table border="1" width="100%" class="tabela-listagem">
+    <thead>
+    <tr>
+        <th>Ações</th>
+        <th>Bandeira</th>
+        <th>Vencimento</th>
+        <th>Limite</th>
+        <th>Total Fatura</th>
+    </tr>
+    </thead>
+    <tbody id="tabela-cartoes"></tbody>
+</table>
+
+
+<div class="paginacao">
+    <button id="prevBtn">⬅️ Anterior</button>
+    <span id="pageInfo"></span>
+    <button id="nextBtn">Próxima ➡️</button>
+</div>
+<script>
+    carregarCartoes(0);
+</script>

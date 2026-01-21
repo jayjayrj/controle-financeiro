@@ -204,11 +204,11 @@ function handleActionId(modulo, acao, id) {
         incluir: '➕',
         editar: '✏️',
         excluir: '🗑️',
-        listar: '📝'
+        listar: '📋'
     };
 
     feedbackIcon.textContent = icons[acao];
-    feedbackTitle.textContent = `${acaoNomes[acao]} de ${moduloNomes[modulo]}`;
+    feedbackTitle.textContent = `${acaoNomes[acao]} ${moduloNomes[modulo]}`;
     feedbackMessage.textContent = `Você selecionou a opção de ${acaoNomes[acao].toLowerCase()} para o módulo ${moduloNomes[modulo]}.`;
 
     console.log("Entrei no if do handleActionId.")
