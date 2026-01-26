@@ -89,6 +89,20 @@ async function carregarBanco(id) {
     }
 }
 
+async function carregarCartao(id) {
+    try {
+        const response = await fetch(`http://localhost:8080/cartoes/${id}`);
+        if (!response.ok) {
+            throw new Error("Erro ao buscar cartão");
+        }
+        const banco = await response.json();
+        preencherCamposCartao(banco);
+    } catch (error) {
+        console.error(error);
+        document.getElementById("feedback-message").innerText = "❌ Não foi possível carregar os dados.";
+    }
+}
+
 function preencherCamposPerfil(usuario) {
     try {
         document.getElementById("nome").value = usuario.nome;
@@ -106,6 +120,17 @@ function preencherCamposBanco(banco) {
         document.getElementById("idBanco").value = banco.id;
         document.getElementById("nome").value = banco.nome;
         document.getElementById("numero").value = banco.numero;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function preencherCamposCartao(cartao) {
+    try {
+        document.getElementById("idCartao").value = cartao.id;
+        document.getElementById("bandeira").value = banco.bandeira;
+        document.getElementById("vencimento").value = banco.vencimento;
+        document.getElementById("limite").value = banco.limite;
     } catch (error) {
         console.error(error);
     }
@@ -174,6 +199,70 @@ async function carregarBancos(page) {
     });
 }
 
+async function carregarCartoes(page) {
+    console.log("Entrei no carregarCartoes");
+    try {
+        console.log("Vou chamar: "+ `http://localhost:8080/cartoes/listar?page=${page}&size=${pageSizeCartao}&sortBy=${sortByCartao}`);
+        const response = await fetch(`http://localhost:8080/cartoes/listar?page=${page}&size=${pageSizeCartao}&sortBy=${sortByCartao}`);
+        console.log("Fiz a consulta");
+        if (!response.ok) throw new Error("Erro ao buscar cartões");
+        console.log("Passei da consulta");
+
+        const data = await response.json(); // objeto Page do Spring
+        const tabela = document.getElementById("tabela-cartoes");
+        tabela.innerHTML = "";
+
+        // renderiza os bancos em formato de tabela
+        data.content.forEach(cartao => {
+            console.log("Entrei no for");
+            const tr = document.createElement("tr");
+
+            // coluna acoes
+            const tdAcoes = document.createElement("td");
+            tdAcoes.innerHTML = `| <a href="#" onclick="handleActionId('cartao', 'editar', ${cartao.id})" style="cursor:pointer">✏️</a> | <a href="#" onclick="handleActionId('cartao', 'excluir', ${cartao.id})" style="cursor:pointer">🗑️</a> |`;
+
+            // coluna bandeira
+            const tdBandeira = document.createElement("td");
+            tdBandeira.textContent = cartao.bandeira;
+
+            // coluna vencimento
+            const tdVencimento = document.createElement("td");
+            tdVencimento.textContent = cartao.vencimento;
+
+            // coluna limite
+            const tdLimite = document.createElement("td");
+            tdLimite.textContent = cartao.limite;
+
+            tr.appendChild(tdAcoes);
+            tr.appendChild(tdBandeira);
+            tr.appendChild(tdVencimento);
+            tr.appendChild(tdLimite);
+
+            tabela.appendChild(tr);
+        });
+
+        // paginação
+        document.getElementById("pageInfo").innerText =
+            `Página ${data.number + 1} de ${data.totalPages}`;
+        document.getElementById("prevBtn").disabled = data.first;
+        document.getElementById("nextBtn").disabled = data.last;
+
+        currentPageCartao = data.number;
+    } catch (error) {
+        document.getElementById("tabela-cartoes").innerHTML =
+            "<tr><td colspan='4'>❌ Não foi possível carregar os cartões.</td></tr>";
+    }
+
+    // eventos dos botões
+    document.getElementById("prevBtn").addEventListener("click", () => {
+        if (currentPageCartao > 0) carregarCartoes(currentPageCartao - 1);
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+        carregarCartoes(currentPageCartao + 1);
+    });
+}
+
 function handleAction(modulo, acao) {
     console.log("Entrei no handleAction(modulo, acao)");
     handleActionId(modulo, acao, null);
@@ -226,12 +315,18 @@ function handleActionId(modulo, acao, id) {
         } else if (modulo === "banco") {
             console.log("O módulo é Banco")
             carregarBanco(id);
+        } else if (modulo === "cartao") {
+            console.log("O módulo é Cartao")
+            carregarCartao(id);
         }
     } else if (acao === "listar") {
         console.log("A ação é Listar")
         if (modulo === "banco") {
             console.log("O módulo é Banco")
             carregarBancos(0);
+        } else if (modulo === "cartao") {
+            console.log("O módulo é Cartao")
+            carregarCartoes(0);
         }
     }
 
