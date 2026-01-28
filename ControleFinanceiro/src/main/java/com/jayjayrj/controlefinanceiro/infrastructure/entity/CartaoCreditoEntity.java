@@ -4,7 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Currency;
+import java.math.BigDecimal;
 
 @Document(collection="cartao_credito_entity")
 @Getter
@@ -17,7 +17,9 @@ public class CartaoCreditoEntity {
     private Integer id;
     private Integer usuario;
     private String bandeira;
+    private String numero;
+    private String nome;
     private Integer vencimento;
-    private Currency limite;
-    private Currency totalFatura;
+    private BigDecimal limite;
+    private BigDecimal totalFatura;
 }
