@@ -1,0 +1,23 @@
+<h1>📋 Contas Correntes cadastradas</h1>
+<table border="1" width="100%" class="tabela-listagem-contas">
+    <thead>
+    <tr>
+        <th>Ações</th>
+        <th>Banco</th>
+        <th>Agência</th>
+        <th>Conta</th>
+        <th>Saldo</th>
+    </tr>
+    </thead>
+    <tbody id="tabela-contas"></tbody>
+</table>
+
+
+<div class="paginacao">
+    <button id="prevBtn">⬅️ Anterior</button>
+    <span id="pageInfo"></span>
+    <button id="nextBtn">Próxima ➡️</button>
+</div>
+<script>
+    carregarContas(0);
+</script>
