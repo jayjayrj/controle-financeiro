@@ -5,7 +5,7 @@ import com.jayjayrj.controlefinanceiro.infrastructure.entity.BancoEntity;
 import com.jayjayrj.controlefinanceiro.infrastructure.entity.UsuarioEntity;
 import lombok.*;
 
-import java.util.Currency;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -16,12 +16,12 @@ import java.util.Currency;
 public class ContaCorrenteRequestDTO {
 
     @JsonProperty(required = true)
-    private UsuarioEntity usuario;
+    private Integer idUsuario;
     @JsonProperty(required = true)
-    private BancoEntity banco;
+    private Integer idBanco;
     @JsonProperty(required = true)
     private Long numeroAgencia;
     @JsonProperty(required = true)
     private Long numeroConta;
-    private Currency saldo;
+    private BigDecimal saldo;
 }

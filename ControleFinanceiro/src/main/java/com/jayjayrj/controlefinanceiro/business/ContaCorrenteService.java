@@ -1,11 +1,11 @@
 package com.jayjayrj.controlefinanceiro.business;
-import com.jayjayrj.controlefinanceiro.api.converter.CartaoCreditoConverter;
-import com.jayjayrj.controlefinanceiro.api.converter.CartaoCreditoMapper;
-import com.jayjayrj.controlefinanceiro.api.request.CartaoCreditoRequestDTO;
-import com.jayjayrj.controlefinanceiro.api.response.CartaoCreditoResponseDTO;
-import com.jayjayrj.controlefinanceiro.infrastructure.entity.CartaoCreditoEntity;
+import com.jayjayrj.controlefinanceiro.api.converter.ContaCorrenteConverter;
+import com.jayjayrj.controlefinanceiro.api.converter.ContaCorrenteMapper;
+import com.jayjayrj.controlefinanceiro.api.request.ContaCorrenteRequestDTO;
+import com.jayjayrj.controlefinanceiro.api.response.ContaCorrenteResponseDTO;
+import com.jayjayrj.controlefinanceiro.infrastructure.entity.ContaCorrenteEntity;
 import com.jayjayrj.controlefinanceiro.infrastructure.exceptions.BusinessException;
-import com.jayjayrj.controlefinanceiro.infrastructure.repository.CartaoCreditoRepository;
+import com.jayjayrj.controlefinanceiro.infrastructure.repository.ContaCorrenteRepository;
 import com.mongodb.DuplicateKeyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,87 +20,74 @@ import static org.springframework.util.Assert.notNull;
 
 @Service
 @RequiredArgsConstructor
-public class CartaoCreditoService {
+public class ContaCorrenteService {
 
-    private final CartaoCreditoRepository cartaoCreditoRepository;
-    private final CartaoCreditoConverter cartaoCreditoConverter;
-    private final CartaoCreditoMapper cartaoCreditoMapper;
+    private final ContaCorrenteRepository contaCorrenteRepository;
+    private final ContaCorrenteConverter contaCorrenteConverter;
+    private final ContaCorrenteMapper contaCorrenteMapper;
 
+    public ContaCorrenteEntity salvaContaCorrente(ContaCorrenteEntity contaCorrenteEntity) {
+        System.out.println("Entrei no ContaCorrenteService.salvaContaCorrente()");
 
-    public CartaoCreditoEntity salvaCartaoCredito(CartaoCreditoEntity cartaoCreditoEntity) {
-        System.out.println("Entrei no CartaoCreditoService.salvaCartaoCredito()");
-
-        return cartaoCreditoRepository.save(cartaoCreditoEntity);
+        return contaCorrenteRepository.save(contaCorrenteEntity);
     }
 
-    public CartaoCreditoResponseDTO gravarCartoesCredito(CartaoCreditoRequestDTO cartaoCreditoRequestDTO) {
+    public ContaCorrenteResponseDTO gravarContasCorrentes(ContaCorrenteRequestDTO contaCorrenteRequestDTO) {
         try {
-            System.out.println("Entrei no CartaoCreditoService.gravarCartoesCredito()");
-            notNull(cartaoCreditoRequestDTO, "Os dados do cartao de crédito são obrigatórios");
-            CartaoCreditoEntity cartaoCreditoEntity = salvaCartaoCredito(cartaoCreditoConverter.paraCartaoCreditoEntity(cartaoCreditoRequestDTO));
-            return cartaoCreditoMapper.paraCartaoCreditoResponseDTO(cartaoCreditoEntity);
+            System.out.println("Entrei no ContaCorrenteService.gravarContasCorrentes()");
+            notNull(contaCorrenteRequestDTO, "Os dados do conta de crédito são obrigatórios");
+            ContaCorrenteEntity contaCorrenteEntity = salvaContaCorrente(contaCorrenteConverter.paraContaCorrenteEntity(contaCorrenteRequestDTO));
+            return contaCorrenteMapper.paraContaCorrenteResponseDTO(contaCorrenteEntity);
         } catch (DuplicateKeyException e) {
-            throw new RuntimeException("Cartao de Crédito já existe com essas informações.");
+            throw new RuntimeException("Conta Corrente já existe com essas informações.");
         } catch (Exception e) {
-            throw new BusinessException("Erro ao gravar dados do cartao de crédito", e);
+            throw new BusinessException("Erro ao gravar dados da conta corrente", e);
         }
     }
 
-    public CartaoCreditoResponseDTO buscaDadosCartaoCredito(String cartaoCredito) {
-        System.out.println("Entrei no CartaoCreditoService.buscaDadosCartaoCredito()");
-        CartaoCreditoEntity entity = cartaoCreditoRepository.findByNome(cartaoCredito);
+    public ContaCorrenteResponseDTO buscaDadosContaCorrentePorId(Integer id) {
+        System.out.println("Entrei no ContaCorrenteService.buscaDadosContaCorrentePorId()");
+        Optional<ContaCorrenteEntity> entity = contaCorrenteRepository.findById(id);
 
-        return entity != null ? cartaoCreditoMapper.paraCartaoCreditoResponseDTO(entity) : null;
+        return entity.map(contaCorrenteMapper::paraContaCorrenteResponseDTO).orElse(null);
     }
 
-    public CartaoCreditoResponseDTO buscaDadosCartaoCreditoPorId(Integer id) {
-        System.out.println("Entrei no CartaoCreditoService.buscaDadosCartaoCreditoPorId()");
-        Optional<CartaoCreditoEntity> entity = cartaoCreditoRepository.findById(id);
-
-        return entity.map(cartaoCreditoMapper::paraCartaoCreditoResponseDTO).orElse(null);
-    }
-
-    public Page<CartaoCreditoResponseDTO> listarCartoesCredito(int page, int size, String sortBy) {
-        System.out.println("Entrei no CartaoCreditoService.listarCartoesCredito()");
+    public Page<ContaCorrenteResponseDTO> listarContasCorrentes(int page, int size, String sortBy) {
+        System.out.println("Entrei no ContaCorrenteService.listarContasCorrentes()");
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
 
-        Page<CartaoCreditoEntity> entityPage = cartaoCreditoRepository.findAll(pageable);
+        Page<ContaCorrenteEntity> entityPage = contaCorrenteRepository.findAll(pageable);
 
         // mapeia cada entidade para DTO
-        return entityPage.map(cartaoCreditoMapper::paraCartaoCreditoResponseDTO);
+        return entityPage.map(contaCorrenteMapper::paraContaCorrenteResponseDTO);
     }
 
-    public CartaoCreditoResponseDTO atualizarCartaoCredito(Integer id, CartaoCreditoRequestDTO cartaoCreditoRequestDTO) {
-        Optional<CartaoCreditoEntity> entityOpt = cartaoCreditoRepository.findById(id);
+    public ContaCorrenteResponseDTO atualizarContaCorrente(Integer id, ContaCorrenteRequestDTO contaCorrenteRequestDTO) {
+        Optional<ContaCorrenteEntity> entityOpt = contaCorrenteRepository.findById(id);
 
         if (entityOpt.isPresent()) {
-            CartaoCreditoEntity entity = entityOpt.get();
+            ContaCorrenteEntity entity = entityOpt.get();
 
             // Verifica duplicação de email
-            CartaoCreditoEntity existenteNome = cartaoCreditoRepository.findByNome(cartaoCreditoRequestDTO.getNome());
+            ContaCorrenteEntity existenteNome = contaCorrenteRepository.findByNumeroAgenciaAndNumeroConta(contaCorrenteRequestDTO.getNumeroAgencia(), contaCorrenteRequestDTO.getNumeroConta());
             if (existenteNome != null && !existenteNome.getId().equals(id)) {
-                throw new RuntimeException("Já existe um cartao de crédito com este nome.");
-            }
-
-            // Verifica duplicação de cartaoCredito (login)
-            CartaoCreditoEntity existenteCartaoCredito = cartaoCreditoRepository.findByNumero(cartaoCreditoRequestDTO.getNumero());
-            if (existenteCartaoCredito != null && !existenteCartaoCredito.getId().equals(id)) {
-                throw new RuntimeException("Já existe um cartao de crédito com este número.");
+                throw new RuntimeException("Já existe uma conta corrente com esta agência e número.");
             }
 
             // Atualiza os campos necessários
-            entity.setNome(cartaoCreditoRequestDTO.getNome());
-            entity.setNumero(cartaoCreditoRequestDTO.getNumero());
+            entity.setNumeroAgencia(contaCorrenteRequestDTO.getNumeroAgencia());
+            entity.setNumeroConta(contaCorrenteRequestDTO.getNumeroConta());
+            entity.setSaldo(contaCorrenteRequestDTO.getSaldo());
 
-            CartaoCreditoEntity atualizado = cartaoCreditoRepository.save(entity);
-            return cartaoCreditoMapper.paraCartaoCreditoResponseDTO(atualizado);
+            ContaCorrenteEntity atualizado = contaCorrenteRepository.save(entity);
+            return contaCorrenteMapper.paraContaCorrenteResponseDTO(atualizado);
         }
 
-        throw new RuntimeException("Cartao de Crédito não encontrado!");
+        throw new RuntimeException("Conta Corrente não encontrada!");
     }
 
-    public void deletaDadosCartaoCredito(Integer id) {
-        cartaoCreditoRepository.deleteById(id);
+    public void deletaDadosContaCorrente(Integer id) {
+        contaCorrenteRepository.deleteById(id);
     }
 }

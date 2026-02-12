@@ -1,7 +1,7 @@
 package com.jayjayrj.controlefinanceiro.api.converter;
 
-import com.jayjayrj.controlefinanceiro.api.request.ContaCorrenteRequestDTO;
-import com.jayjayrj.controlefinanceiro.infrastructure.entity.ContaCorrenteEntity;
+import com.jayjayrj.controlefinanceiro.api.request.TransacaoRequestDTO;
+import com.jayjayrj.controlefinanceiro.infrastructure.entity.TransacaoEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,18 +9,20 @@ import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
-public class ContaCorrenteConverter {
+public class TransacaoConverter {
 
-    public ContaCorrenteEntity paraContaCorrenteEntity(ContaCorrenteRequestDTO cartaoCreditoDTO) {
+    public TransacaoEntity paraTransacaoEntity(TransacaoRequestDTO transacaoDTO) {
         Random random = new Random();
 
-        return ContaCorrenteEntity.builder()
+        return TransacaoEntity.builder()
                 .id(random.nextInt())
-                .idUsuario(cartaoCreditoDTO.getIdUsuario())
-                .idBanco(cartaoCreditoDTO.getIdBanco())
-                .numeroAgencia(cartaoCreditoDTO.getNumeroAgencia())
-                .numeroConta(cartaoCreditoDTO.getNumeroConta())
-                .saldo(cartaoCreditoDTO.getSaldo())
+                .idUsuario(transacaoDTO.getIdUsuario())
+                .idConta(transacaoDTO.getIdConta())
+                .idCartao(transacaoDTO.getIdCartao())
+                .naturezaOperacao(transacaoDTO.getNaturezaOperacao())
+                .data(transacaoDTO.getData())
+                .valor(transacaoDTO.getValor())
+                .quantidadeVezes(transacaoDTO.getQuantidadeVezes())
                 .build();
     }
 }

@@ -1,11 +1,11 @@
 package com.jayjayrj.controlefinanceiro.business;
-import com.jayjayrj.controlefinanceiro.api.converter.ContaCorrenteConverter;
-import com.jayjayrj.controlefinanceiro.api.converter.ContaCorrenteMapper;
-import com.jayjayrj.controlefinanceiro.api.request.ContaCorrenteRequestDTO;
-import com.jayjayrj.controlefinanceiro.api.response.ContaCorrenteResponseDTO;
-import com.jayjayrj.controlefinanceiro.infrastructure.entity.ContaCorrenteEntity;
+import com.jayjayrj.controlefinanceiro.api.converter.TransacaoConverter;
+import com.jayjayrj.controlefinanceiro.api.converter.TransacaoMapper;
+import com.jayjayrj.controlefinanceiro.api.request.TransacaoRequestDTO;
+import com.jayjayrj.controlefinanceiro.api.response.TransacaoResponseDTO;
+import com.jayjayrj.controlefinanceiro.infrastructure.entity.TransacaoEntity;
 import com.jayjayrj.controlefinanceiro.infrastructure.exceptions.BusinessException;
-import com.jayjayrj.controlefinanceiro.infrastructure.repository.ContaCorrenteRepository;
+import com.jayjayrj.controlefinanceiro.infrastructure.repository.TransacaoRepository;
 import com.mongodb.DuplicateKeyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,74 +20,68 @@ import static org.springframework.util.Assert.notNull;
 
 @Service
 @RequiredArgsConstructor
-public class ContaCorrenteService {
+public class TransacaoService {
 
-    private final ContaCorrenteRepository contaCorrenteRepository;
-    private final ContaCorrenteConverter contaCorrenteConverter;
-    private final ContaCorrenteMapper contaCorrenteMapper;
+    private final TransacaoRepository transacaoRepository;
+    private final TransacaoConverter transacaoConverter;
+    private final TransacaoMapper transacaoMapper;
 
-    public ContaCorrenteEntity salvaContaCorrente(ContaCorrenteEntity contaCorrenteEntity) {
-        System.out.println("Entrei no ContaCorrenteService.salvaContaCorrente()");
+    public TransacaoEntity salvaTransacao(TransacaoEntity transacaoEntity) {
+        System.out.println("Entrei no TransacaoService.salvaTransacao()");
 
-        return contaCorrenteRepository.save(contaCorrenteEntity);
+        return transacaoRepository.save(transacaoEntity);
     }
 
-    public ContaCorrenteResponseDTO gravarContasCorrentes(ContaCorrenteRequestDTO contaCorrenteRequestDTO) {
+    public TransacaoResponseDTO gravarTransacoes(TransacaoRequestDTO transacaoRequestDTO) {
         try {
-            System.out.println("Entrei no ContaCorrenteService.gravarContasCorrentes()");
-            notNull(contaCorrenteRequestDTO, "Os dados do conta de crédito são obrigatórios");
-            ContaCorrenteEntity contaCorrenteEntity = salvaContaCorrente(contaCorrenteConverter.paraContaCorrenteEntity(contaCorrenteRequestDTO));
-            return contaCorrenteMapper.paraContaCorrenteResponseDTO(contaCorrenteEntity);
+            System.out.println("Entrei no TransacaoService.gravarTransacoes()");
+            notNull(transacaoRequestDTO, "Os dados da transação são obrigatórios");
+            TransacaoEntity transacaoEntity = salvaTransacao(transacaoConverter.paraTransacaoEntity(transacaoRequestDTO));
+            return transacaoMapper.paraTransacaoResponseDTO(transacaoEntity);
         } catch (DuplicateKeyException e) {
-            throw new RuntimeException("Conta Corrente já existe com essas informações.");
+            throw new RuntimeException("Transação já existe com essas informações.");
         } catch (Exception e) {
-            throw new BusinessException("Erro ao gravar dados da conta corrente", e);
+            throw new BusinessException("Erro ao gravar dados da transação corrente", e);
         }
     }
 
-    public ContaCorrenteResponseDTO buscaDadosContaCorrentePorId(Integer id) {
-        System.out.println("Entrei no ContaCorrenteService.buscaDadosContaCorrentePorId()");
-        Optional<ContaCorrenteEntity> entity = contaCorrenteRepository.findById(id);
+    public TransacaoResponseDTO buscaDadosTransacaoPorId(Integer id) {
+        System.out.println("Entrei no TransacaoService.buscaDadosTransacaoPorId()");
+        Optional<TransacaoEntity> entity = transacaoRepository.findById(id);
 
-        return entity.map(contaCorrenteMapper::paraContaCorrenteResponseDTO).orElse(null);
+        return entity.map(transacaoMapper::paraTransacaoResponseDTO).orElse(null);
     }
 
-    public Page<ContaCorrenteResponseDTO> listarContasCorrentes(int page, int size, String sortBy) {
-        System.out.println("Entrei no ContaCorrenteService.listarContasCorrentes()");
+    public Page<TransacaoResponseDTO> listarTransacoes(int page, int size, String sortBy) {
+        System.out.println("Entrei no TransacaoService.listarTransacoes()");
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
 
-        Page<ContaCorrenteEntity> entityPage = contaCorrenteRepository.findAll(pageable);
+        Page<TransacaoEntity> entityPage = transacaoRepository.findAll(pageable);
 
         // mapeia cada entidade para DTO
-        return entityPage.map(contaCorrenteMapper::paraContaCorrenteResponseDTO);
+        return entityPage.map(transacaoMapper::paraTransacaoResponseDTO);
     }
 
-    public ContaCorrenteResponseDTO atualizarContaCorrente(Integer id, ContaCorrenteRequestDTO contaCorrenteRequestDTO) {
-        Optional<ContaCorrenteEntity> entityOpt = contaCorrenteRepository.findById(id);
+    public TransacaoResponseDTO atualizarTransacao(Integer id, TransacaoRequestDTO transacaoRequestDTO) {
+        Optional<TransacaoEntity> entityOpt = transacaoRepository.findById(id);
 
         if (entityOpt.isPresent()) {
-            ContaCorrenteEntity entity = entityOpt.get();
-
-            // Verifica duplicação de email
-            ContaCorrenteEntity existenteNome = contaCorrenteRepository.findByNumeroAgenciaAndNumeroConta(contaCorrenteRequestDTO.getNumeroAgencia(), contaCorrenteRequestDTO.getNumeroConta());
-            if (existenteNome != null && !existenteNome.getId().equals(id)) {
-                throw new RuntimeException("Já existe uma conta corrente com esta agência e número.");
-            }
+            TransacaoEntity entity = entityOpt.get();
 
             // Atualiza os campos necessários
-            entity.setNumeroAgencia(contaCorrenteRequestDTO.getNumeroAgencia());
-            entity.setNumeroConta(contaCorrenteRequestDTO.getNumeroConta());
-            entity.setSaldo(contaCorrenteRequestDTO.getSaldo());
+            entity.setData(transacaoRequestDTO.getData());
+            entity.setValor(transacaoRequestDTO.getValor());
+            entity.setQuantidadeVezes(transacaoRequestDTO.getQuantidadeVezes());
 
-            ContaCorrenteEntity atualizado = contaCorrenteRepository.save(entity);
-            return contaCorrenteMapper.paraContaCorrenteResponseDTO(atualizado);
+            TransacaoEntity atualizado = transacaoRepository.save(entity);
+            return transacaoMapper.paraTransacaoResponseDTO(atualizado);
         }
 
-        throw new RuntimeException("Conta Corrente não encontrada!");
+        throw new RuntimeException("Transação não encontrada!");
     }
 
-    public void deletaDadosContaCorrente(Integer id) {
-        contaCorrenteRepository.deleteById(id);
+    public void deletaDadosTransacao(Integer id) {
+        transacaoRepository.deleteById(id);
     }
 }

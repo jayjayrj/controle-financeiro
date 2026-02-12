@@ -3,13 +3,14 @@ package com.jayjayrj.controlefinanceiro.api.response;
 import com.jayjayrj.controlefinanceiro.infrastructure.entity.BancoEntity;
 import com.jayjayrj.controlefinanceiro.infrastructure.entity.UsuarioEntity;
 
-import java.util.Currency;
+import java.math.BigDecimal;
 
 public record ContaCorrenteResponseDTO(Integer id,
-                                        UsuarioEntity usuario,
-                                        BancoEntity banco,
+                                        Integer idUsuario,
+                                        Integer idBanco,
+                                        String nomeBanco,
                                         Long numeroAgencia,
                                         Long numeroConta,
-                                        Currency saldo) {
+                                        BigDecimal saldo) {
 
 }

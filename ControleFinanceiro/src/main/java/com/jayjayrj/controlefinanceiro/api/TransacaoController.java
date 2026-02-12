@@ -1,9 +1,13 @@
 package com.jayjayrj.controlefinanceiro.api;
-import com.jayjayrj.controlefinanceiro.api.request.ContaCorrenteRequestDTO;
+import com.jayjayrj.controlefinanceiro.api.request.TransacaoRequestDTO;
 import com.jayjayrj.controlefinanceiro.api.response.BancoResponseDTO;
+import com.jayjayrj.controlefinanceiro.api.response.CartaoCreditoResponseDTO;
 import com.jayjayrj.controlefinanceiro.api.response.ContaCorrenteResponseDTO;
+import com.jayjayrj.controlefinanceiro.api.response.TransacaoResponseDTO;
 import com.jayjayrj.controlefinanceiro.business.BancoService;
+import com.jayjayrj.controlefinanceiro.business.CartaoCreditoService;
 import com.jayjayrj.controlefinanceiro.business.ContaCorrenteService;
+import com.jayjayrj.controlefinanceiro.business.TransacaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -11,57 +15,71 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/contas")
+@RequestMapping("/transacoes")
 @RequiredArgsConstructor
-public class ContaCorrenteController {
+public class TransacaoController {
 
+    private final TransacaoService transacaoService;
     private final ContaCorrenteService contaCorrenteService;
-    private final BancoService bancoService;
+    private final CartaoCreditoService cartaoCreditoService;
 
     @PostMapping()
-    public ResponseEntity<ContaCorrenteResponseDTO> gravaDadosContaCorrente(@RequestBody ContaCorrenteRequestDTO contaCorrenteRequestDTO) {
-        System.out.println("Entrei no ContaCorrenteController.gravaDadosContaCorrente()");
-        return ResponseEntity.ok(contaCorrenteService.gravarContasCorrentes(contaCorrenteRequestDTO));
+    public ResponseEntity<TransacaoResponseDTO> gravaDadosTransacao(@RequestBody TransacaoRequestDTO transacaoRequestDTO) {
+        System.out.println("Entrei no TransacaoController.gravaDadosTransacao()");
+        return ResponseEntity.ok(transacaoService.gravarTransacoes(transacaoRequestDTO));
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<Page<ContaCorrenteResponseDTO>> listarContasCorrentes(
+    public ResponseEntity<Page<TransacaoResponseDTO>> listarTransacoes(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "nomeBanco") String sortBy) {
+            @RequestParam(defaultValue = "data") String sortBy) {
 
-        System.out.println("Entrei no ContaCorrenteController.listarContasCorrentes()");
+        System.out.println("Entrei no TransacaoController.listarTransacoes()");
 
-        Page<ContaCorrenteResponseDTO> contasCorrentes = contaCorrenteService.listarContasCorrentes(page, size, sortBy);
-        Page<ContaCorrenteResponseDTO> contasComBanco = contasCorrentes.map(contaCorrente -> {
+        Page<TransacaoResponseDTO> transacoes = transacaoService.listarTransacoes(page, size, sortBy);
+        Page<TransacaoResponseDTO> transacoesComBanco = transacoes.map(transacao -> {
 
-            String nomeBanco = "";
-            if (contaCorrente.idBanco() != null) {
-                BancoResponseDTO banco  = bancoService.buscaDadosBancoPorId(contaCorrente.idBanco());
+            String nomeConta = "";
+            if (transacao.idConta() != null) {
+                ContaCorrenteResponseDTO contaCorrente  = contaCorrenteService.buscaDadosContaCorrentePorId(transacao.idConta());
 
-                if (banco != null) {
-                    nomeBanco = banco.nome();
-                    System.out.println("O nome do banco é " +  nomeBanco);
+                if (contaCorrente != null) {
+                    nomeConta = contaCorrente.nomeBanco();
+                    System.out.println("O nome da conta é " +  nomeConta);
                 }
             }
 
-            return new ContaCorrenteResponseDTO(
-                    contaCorrente.id(),
-                    contaCorrente.idUsuario(),
-                    contaCorrente.idBanco(),
-                    nomeBanco,
-                    contaCorrente.numeroAgencia(),
-                    contaCorrente.numeroConta(),
-                    contaCorrente.saldo());
+            String nomeCartao = "";
+            if (transacao.idConta() != null) {
+                CartaoCreditoResponseDTO cartaoCredito = cartaoCreditoService.buscaDadosCartaoCreditoPorId(transacao.idCartao());
+
+                if (cartaoCredito != null) {
+                    nomeCartao = cartaoCredito.nome();
+                    System.out.println("O nome do cartão é " +  nomeCartao);
+                }
+            }
+
+            return new TransacaoResponseDTO(
+                    transacao.id(),
+                    transacao.idUsuario(),
+                    transacao.idConta(),
+                    nomeConta,
+                    transacao.idCartao(),
+                    transacao.nomeCartao(),
+                    transacao.naturezaOperacao(),
+                    transacao.data(),
+                    transacao.valor(),
+                    transacao.quantidadeVezes());
         });
 
-        return ResponseEntity.ok(contasComBanco);
+        return ResponseEntity.ok(transacoesComBanco);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ContaCorrenteResponseDTO> buscaContaCorrentePorId(@PathVariable Integer id) {
-        System.out.println("Entrei no ContaCorrenteController.buscaContaCorrentePorId()");
-        ContaCorrenteResponseDTO dto = contaCorrenteService.buscaDadosContaCorrentePorId(id);
+    public ResponseEntity<TransacaoResponseDTO> buscaTransacaoPorId(@PathVariable Integer id) {
+        System.out.println("Entrei no TransacaoController.buscaTransacaoPorId()");
+        TransacaoResponseDTO dto = transacaoService.buscaDadosTransacaoPorId(id);
         if (dto == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -69,12 +87,12 @@ public class ContaCorrenteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ContaCorrenteResponseDTO> atualizaContaCorrente(
+    public ResponseEntity<TransacaoResponseDTO> atualizaTransacao(
             @PathVariable Integer id,
-            @RequestBody ContaCorrenteRequestDTO contaCorrenteRequestDTO) {
-        System.out.println("Entrei no ContaCorrenteController.atualizaContaCorrente()");
+            @RequestBody TransacaoRequestDTO transacaoRequestDTO) {
+        System.out.println("Entrei no TransacaoController.atualizaTransacao()");
 
-        ContaCorrenteResponseDTO dto = contaCorrenteService.atualizarContaCorrente(id, contaCorrenteRequestDTO);
+        TransacaoResponseDTO dto = transacaoService.atualizarTransacao(id, transacaoRequestDTO);
 
         if (dto == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -83,8 +101,8 @@ public class ContaCorrenteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletaDadosContaCorrente(@PathVariable Integer id) {
-        contaCorrenteService.deletaDadosContaCorrente(id);
+    public ResponseEntity<Void> deletaDadosTransacao(@PathVariable Integer id) {
+        transacaoService.deletaDadosTransacao(id);
         return ResponseEntity.accepted().build();
     }
 }

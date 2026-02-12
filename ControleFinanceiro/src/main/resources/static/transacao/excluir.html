@@ -1,20 +1,33 @@
 <form id="signupForm" onsubmit="return false;">
-    <input type="hidden" name="idConta" id="idConta">
-    <div class="mb-4"><label for="idBanco" class="opacity-80">Banco</label> <select id="idBanco" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" disabled>
-        <option value="">-- Escolha --</option>
-    </select>
+    <input type="hidden" name="idTransacao" id="idTransacao">
+    <div class="mb-4"><label for="tipoTransacao" class="opacity-80">Tipo de transação</label>
+        <select id="tipoTransacao" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all"  onchange="selecionarTipoTransacao()" disabled>
+            <option value="0">Cartão de Crédito</option>
+            <option value="1">Conta Corrente</option>
+        </select>
     </div>
-    <div class="mb-4"><label for="agencia" class="opacity-80">Agência</label> <input type="text" id="agencia" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="Número da Agência" disabled>
+    <div class="mb-4" id="divConta"><label for="idConta" class="opacity-80">Conta Corrente</label>
+        <select id="idConta" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" disabled>
+            <option value="">-- Escolha a conta corrente --</option>
+        </select>
     </div>
-    <div class="mb-4"><label for="conta" class="opacity-80">Conta Corrente</label> <input type="text" id="conta" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="Número da Conta Corrente" disabled>
+    <div class="mb-4" id="divCartao"><label for="idCartao" class="opacity-80">Cartão de Crédito</label>
+        <select id="idCartao" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" disabled>
+            <option value="">-- Escolha o cartão de crédito --</option>
+        </select>
     </div>
-    <div class="mb-4"><label for="saldo" class="opacity-80">Saldo Atual</label> <input type="text" id="saldo" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="Saldo atual da Conta Corrente" disabled>
+    <div class="mb-4"><label for="naturezaOperacao" class="opacity-80">Descrição</label> <input type="text" id="naturezaOperacao" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="Descrição da transação" disabled>
     </div>
-    <div class="flex space-x-4">
-        <button id="signupButton" type="submit" onClick="salvarExclusaoConta();" class="w-1/2 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg" style="background-color: #667eea;"> Excluir </button>
-        <button id="cancelButton" type="button" onclick="cancelAction('conta', 'listar');" class="w-1/2 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg" style="background-color: #667eea;"> Voltar </button>
+    <div class="mb-4"><label for="data" class="opacity-80">Data</label> <input type="date" id="data" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="Data da transação" disabled>
+    </div>
+    <div class="mb-4"><label for="valor" class="opacity-80">Valor</label> <input type="text" id="valor" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="Valor da transação" disabled>
+    </div>
+    <div class="mb-4"><label for="quantidadeVezes" class="opacity-80">Quantidade de parcelas</label> <input type="text" id="quantidadeVezes" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" placeholder="Quantidade de parcelas" disabled>
+    </div>    <div class="flex space-x-4">
+        <button id="signupButton" type="submit" onClick="salvarExclusaoTransacao();" class="w-1/2 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg" style="background-color: #667eea;"> Excluir </button>
+        <button id="cancelButton" type="button" onclick="cancelAction('transacao', 'listar');" class="w-1/2 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg" style="background-color: #667eea;"> Voltar </button>
     </div>
 </form>
 <script>
-    preencherSelectBanco();
+    preencherSelectsTransacao();
 </script>

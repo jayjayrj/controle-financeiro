@@ -1,11 +1,10 @@
 package com.jayjayrj.controlefinanceiro.api.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jayjayrj.controlefinanceiro.infrastructure.entity.BancoEntity;
-import com.jayjayrj.controlefinanceiro.infrastructure.entity.UsuarioEntity;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -13,15 +12,18 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode
-public class ContaCorrenteRequestDTO {
+public class TransacaoRequestDTO {
 
     @JsonProperty(required = true)
     private Integer idUsuario;
+    private Integer idConta;
+    private Integer idCartao;
     @JsonProperty(required = true)
-    private Integer idBanco;
+    private String naturezaOperacao;
     @JsonProperty(required = true)
-    private Long numeroAgencia;
+    private Date data;
     @JsonProperty(required = true)
-    private Long numeroConta;
-    private BigDecimal saldo;
+    private BigDecimal valor;
+    @JsonProperty(required = true)
+    private Integer quantidadeVezes;
 }

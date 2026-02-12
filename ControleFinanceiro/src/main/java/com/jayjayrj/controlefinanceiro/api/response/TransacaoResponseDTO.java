@@ -1,16 +1,16 @@
 package com.jayjayrj.controlefinanceiro.api.response;
 
-import com.jayjayrj.controlefinanceiro.infrastructure.entity.BancoEntity;
-import com.jayjayrj.controlefinanceiro.infrastructure.entity.UsuarioEntity;
-
 import java.math.BigDecimal;
+import java.util.Date;
 
-public record ContaCorrenteResponseDTO(Integer id,
-                                        Integer idUsuario,
-                                        Integer idBanco,
-                                        String nomeBanco,
-                                        Long numeroAgencia,
-                                        Long numeroConta,
-                                        BigDecimal saldo) {
-
+public record TransacaoResponseDTO(Integer id,
+                                   Integer idUsuario,
+                                   Integer idConta,
+                                   String nomeConta,
+                                   Integer idCartao,
+                                   String nomeCartao,
+                                   String naturezaOperacao,
+                                   Date data,
+                                   BigDecimal valor,
+                                   Integer quantidadeVezes) {
 }

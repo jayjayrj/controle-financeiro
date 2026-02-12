@@ -90,8 +90,11 @@ public class CartaoCreditoService {
             }
 
             // Atualiza os campos necessários
+            entity.setBandeira(cartaoCreditoRequestDTO.getBandeira());
             entity.setNome(cartaoCreditoRequestDTO.getNome());
             entity.setNumero(cartaoCreditoRequestDTO.getNumero());
+            entity.setVencimento(cartaoCreditoRequestDTO.getVencimento());
+            entity.setLimite(cartaoCreditoRequestDTO.getLimite());
 
             CartaoCreditoEntity atualizado = cartaoCreditoRepository.save(entity);
             return cartaoCreditoMapper.paraCartaoCreditoResponseDTO(atualizado);

@@ -1,11 +1,11 @@
 package com.jayjayrj.controlefinanceiro.api.converter;
 
-import com.jayjayrj.controlefinanceiro.api.response.CartaoCreditoResponseDTO;
-import com.jayjayrj.controlefinanceiro.infrastructure.entity.CartaoCreditoEntity;
+import com.jayjayrj.controlefinanceiro.api.response.ContaCorrenteResponseDTO;
+import com.jayjayrj.controlefinanceiro.infrastructure.entity.ContaCorrenteEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface CartaoCreditoMapper {
+public interface ContaCorrenteMapper {
 
-    CartaoCreditoResponseDTO paraCartaoCreditoResponseDTO(CartaoCreditoEntity entity);
+    ContaCorrenteResponseDTO paraContaCorrenteResponseDTO(ContaCorrenteEntity entity);
 }
