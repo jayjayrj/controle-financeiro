@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.springframework.util.Assert.notNull;
@@ -85,6 +86,30 @@ public class ContaCorrenteService {
         }
 
         throw new RuntimeException("Conta Corrente não encontrada!");
+    }
+
+    public BigDecimal buscarSaldoPorId(Integer id) {
+
+        ContaCorrenteEntity contaCorrenteEntity = contaCorrenteRepository.findById(id).orElse(null);
+        if (contaCorrenteEntity != null) {
+            return contaCorrenteEntity.getSaldo();
+        }
+        return null;
+    }
+
+    public void atualizarSaldoContaCorrente(Integer idContaCorrente, BigDecimal novoSaldo) {
+        Optional<ContaCorrenteEntity> entityOpt = contaCorrenteRepository.findById(idContaCorrente);
+
+        if (entityOpt.isPresent()) {
+            ContaCorrenteEntity entity = entityOpt.get();
+
+            // Atualiza os campos necessários
+            entity.setSaldo(novoSaldo);
+
+            contaCorrenteRepository.save(entity);
+        } else {
+            throw new RuntimeException("Conta Corrente não encontrada!");
+        }
     }
 
     public void deletaDadosContaCorrente(Integer id) {

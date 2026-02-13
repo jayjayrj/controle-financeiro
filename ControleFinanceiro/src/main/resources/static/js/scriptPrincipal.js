@@ -119,7 +119,7 @@ async function carregarSelectBancos() {
     }
 }
 
-async function preencherSelectsBanco() {
+async function preencherSelectBanco() {
     await carregarSelectBancos();
     console.log("Vou popular o idBanco com " + sessionStorage.getItem("idBanco"));
     document.getElementById("idBanco").value = sessionStorage.getItem("idBanco");
@@ -282,6 +282,12 @@ function preencherCamposConta(conta) {
 function preencherCamposTransacao(transacao) {
     try {
         document.getElementById("idTransacao").value = transacao.id;
+        // preenche o tipo de transação com base no que vem do banco
+        if (transacao.idConta) {
+            document.getElementById("tipoTransacao").value = 1;
+        } else {
+            document.getElementById("tipoTransacao").value = 0;
+        }
         document.getElementById("idConta").value = transacao.idConta;
         // Coloca na sessão para poder carregar tardiamente
         sessionStorage.setItem("idConta", transacao.idConta);
@@ -1498,9 +1504,11 @@ function selecionarTipoTransacao() {
     const divCartao = document.getElementById("divCartao");
 
     if (tipoTransacao === "0") {
+        document.getElementById("idConta").value = '';
         divCartao.style.display = "block";
         divConta.style.display = "none";
     } else if (tipoTransacao === "1") {
+        document.getElementById("idCartao").value = '';
         divCartao.style.display = "none";
         divConta.style.display = "block";
     }

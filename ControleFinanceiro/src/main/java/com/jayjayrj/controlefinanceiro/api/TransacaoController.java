@@ -51,7 +51,62 @@ public class TransacaoController {
             }
 
             String nomeCartao = "";
+            if (transacao.idCartao() != null) {
+                CartaoCreditoResponseDTO cartaoCredito = cartaoCreditoService.buscaDadosCartaoCreditoPorId(transacao.idCartao());
+
+                if (cartaoCredito != null) {
+                    nomeCartao = cartaoCredito.nome();
+                    System.out.println("O nome do cartão é " +  nomeCartao);
+                }
+            }
+
+            return new TransacaoResponseDTO(
+                    transacao.id(),
+                    transacao.idUsuario(),
+                    transacao.idConta(),
+                    nomeConta,
+                    transacao.idCartao(),
+                    transacao.nomeCartao(),
+                    transacao.naturezaOperacao(),
+                    transacao.data(),
+                    transacao.valor(),
+                    transacao.quantidadeVezes());
+        });
+
+        return ResponseEntity.ok(transacoesComBanco);
+    }
+
+    @GetMapping("/listar-especifico")
+    public ResponseEntity<Page<TransacaoResponseDTO>> listarTransacoesPorContaOuCartao(
+            @RequestParam(required = false) int idConta,
+            @RequestParam(required = false) int idCartao,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "data") String sortBy) {
+
+        System.out.println("Entrei no TransacaoController.listarTransacoesPorContaOuCartao()");
+
+        Page<TransacaoResponseDTO> transacoes = null;
+        if (idConta != 0) {
+            transacoes = transacaoService.listarTransacoesPorIdConta(idConta, page, size, sortBy);
+        } else {
+            transacoes = transacaoService.listarTransacoesPorIdCartao(idCartao, page, size, sortBy);
+        }
+
+        Page<TransacaoResponseDTO> transacoesComBanco = transacoes.map(transacao -> {
+
+            String nomeConta = "";
             if (transacao.idConta() != null) {
+                ContaCorrenteResponseDTO contaCorrente  = contaCorrenteService.buscaDadosContaCorrentePorId(transacao.idConta());
+
+                if (contaCorrente != null) {
+                    nomeConta = contaCorrente.nomeBanco();
+                    System.out.println("O nome da conta é " +  nomeConta);
+                }
+            }
+
+            String nomeCartao = "";
+            if (transacao.idCartao() != null) {
                 CartaoCreditoResponseDTO cartaoCredito = cartaoCreditoService.buscaDadosCartaoCreditoPorId(transacao.idCartao());
 
                 if (cartaoCredito != null) {

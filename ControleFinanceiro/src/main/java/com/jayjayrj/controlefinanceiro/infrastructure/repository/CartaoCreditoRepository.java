@@ -4,6 +4,7 @@ import com.jayjayrj.controlefinanceiro.infrastructure.entity.CartaoCreditoEntity
 import com.jayjayrj.controlefinanceiro.infrastructure.entity.CartaoCreditoEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface CartaoCreditoRepository extends MongoRepository<CartaoCreditoEntity, Integer> {

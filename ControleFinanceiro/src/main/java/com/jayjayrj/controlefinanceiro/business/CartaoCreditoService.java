@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.springframework.util.Assert.notNull;
@@ -101,6 +102,30 @@ public class CartaoCreditoService {
         }
 
         throw new RuntimeException("Cartao de Crédito não encontrado!");
+    }
+
+    public BigDecimal buscarLimitePorId(Integer id) {
+
+        CartaoCreditoEntity cartaoCreditoEntity = cartaoCreditoRepository.findById(id).orElse(null);
+        if (cartaoCreditoEntity != null) {
+            return cartaoCreditoEntity.getLimite();
+        }
+        return null;
+    }
+
+    public void atualizarLimiteCartaoCredito(Integer idCartao, BigDecimal novoLimite) {
+        Optional<CartaoCreditoEntity> entityOpt = cartaoCreditoRepository.findById(idCartao);
+
+        if (entityOpt.isPresent()) {
+            CartaoCreditoEntity entity = entityOpt.get();
+
+            // Atualiza os campos necessários
+            entity.setLimite(novoLimite);
+
+            CartaoCreditoEntity atualizado = cartaoCreditoRepository.save(entity);
+        } else {
+            throw new RuntimeException("Cartao de Crédito não encontrado!");
+        }
     }
 
     public void deletaDadosCartaoCredito(Integer id) {
