@@ -2,6 +2,7 @@ package com.jayjayrj.controlefinanceiro.business;
 import com.jayjayrj.controlefinanceiro.api.converter.ContaCorrenteConverter;
 import com.jayjayrj.controlefinanceiro.api.converter.ContaCorrenteMapper;
 import com.jayjayrj.controlefinanceiro.api.request.ContaCorrenteRequestDTO;
+import com.jayjayrj.controlefinanceiro.api.response.BancoResponseDTO;
 import com.jayjayrj.controlefinanceiro.api.response.ContaCorrenteResponseDTO;
 import com.jayjayrj.controlefinanceiro.infrastructure.entity.ContaCorrenteEntity;
 import com.jayjayrj.controlefinanceiro.infrastructure.exceptions.BusinessException;
@@ -26,6 +27,7 @@ public class ContaCorrenteService {
     private final ContaCorrenteRepository contaCorrenteRepository;
     private final ContaCorrenteConverter contaCorrenteConverter;
     private final ContaCorrenteMapper contaCorrenteMapper;
+    private final BancoService bancoService;
 
     public ContaCorrenteEntity salvaContaCorrente(ContaCorrenteEntity contaCorrenteEntity) {
         System.out.println("Entrei no ContaCorrenteService.salvaContaCorrente()");
@@ -50,7 +52,25 @@ public class ContaCorrenteService {
         System.out.println("Entrei no ContaCorrenteService.buscaDadosContaCorrentePorId()");
         Optional<ContaCorrenteEntity> entity = contaCorrenteRepository.findById(id);
 
-        return entity.map(contaCorrenteMapper::paraContaCorrenteResponseDTO).orElse(null);
+        ContaCorrenteResponseDTO contaCorrente = entity.map(contaCorrenteMapper::paraContaCorrenteResponseDTO).orElse(null);
+
+        if  (entity.isPresent()) {
+            BancoResponseDTO banco  = bancoService.buscaDadosBancoPorId(contaCorrente.idBanco());
+
+            if (banco != null) {
+                contaCorrente = new ContaCorrenteResponseDTO(
+                        contaCorrente.id(),
+                        contaCorrente.idUsuario(),
+                        contaCorrente.idBanco(),
+                        banco.nome(),
+                        contaCorrente.numeroAgencia(),
+                        contaCorrente.numeroConta(),
+                        contaCorrente.saldo()
+                );
+                System.out.println("O nome do banco é " +  banco.nome());
+            }
+        }
+        return contaCorrente;
     }
 
     public Page<ContaCorrenteResponseDTO> listarContasCorrentes(int page, int size, String sortBy) {

@@ -76,10 +76,10 @@ public class TransacaoController {
         return ResponseEntity.ok(transacoesComBanco);
     }
 
-    @GetMapping("/listar-especifico")
+    @GetMapping("/listarPorContaCartao")
     public ResponseEntity<Page<TransacaoResponseDTO>> listarTransacoesPorContaOuCartao(
-            @RequestParam(required = false) int idConta,
-            @RequestParam(required = false) int idCartao,
+            @RequestParam(required = false) Integer idConta,
+            @RequestParam(required = false) Integer idCartao,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "data") String sortBy) {
@@ -87,7 +87,7 @@ public class TransacaoController {
         System.out.println("Entrei no TransacaoController.listarTransacoesPorContaOuCartao()");
 
         Page<TransacaoResponseDTO> transacoes = null;
-        if (idConta != 0) {
+        if (idConta != null) {
             transacoes = transacaoService.listarTransacoesPorIdConta(idConta, page, size, sortBy);
         } else {
             transacoes = transacaoService.listarTransacoesPorIdCartao(idCartao, page, size, sortBy);
@@ -100,7 +100,7 @@ public class TransacaoController {
                 ContaCorrenteResponseDTO contaCorrente  = contaCorrenteService.buscaDadosContaCorrentePorId(transacao.idConta());
 
                 if (contaCorrente != null) {
-                    nomeConta = contaCorrente.nomeBanco();
+                    nomeConta = contaCorrente.nomeBanco() + " - " + contaCorrente.numeroConta();
                     System.out.println("O nome da conta é " +  nomeConta);
                 }
             }
@@ -110,7 +110,7 @@ public class TransacaoController {
                 CartaoCreditoResponseDTO cartaoCredito = cartaoCreditoService.buscaDadosCartaoCreditoPorId(transacao.idCartao());
 
                 if (cartaoCredito != null) {
-                    nomeCartao = cartaoCredito.nome();
+                    nomeCartao = cartaoCredito.bandeira() + " - " +  cartaoCredito.nome();
                     System.out.println("O nome do cartão é " +  nomeCartao);
                 }
             }
@@ -121,7 +121,7 @@ public class TransacaoController {
                     transacao.idConta(),
                     nomeConta,
                     transacao.idCartao(),
-                    transacao.nomeCartao(),
+                    nomeCartao,
                     transacao.naturezaOperacao(),
                     transacao.data(),
                     transacao.valor(),

@@ -1514,6 +1514,80 @@ function selecionarTipoTransacao() {
     }
 }
 
+function filtrarTransacoes(tipoTransacao) {
+    console.log("filtrarTransacoes tipoTransacao = " + tipoTransacao);
+    if (tipoTransacao === 0) {
+        console.log("filtrarTransacoes Entrei no 0");
+        document.getElementById("idConta").value = '';
+        const select = document.getElementById("idCartao");
+        document.getElementById("descricaoTipoTransacoes").textContent = "o Cartão de Crédito";
+        document.getElementById("descricaoNomeTransacoes").textContent = select.options[select.selectedIndex].text;
+    } else if (tipoTransacao === 1) {
+        console.log("filtrarTransacoes Entrei no 1");
+        document.getElementById("idCartao").value = '';
+        const select = document.getElementById("idConta");
+        document.getElementById("descricaoTipoTransacoes").textContent = " a Conta Corrente ";
+        document.getElementById("descricaoNomeTransacoes").textContent = select.options[select.selectedIndex].text;
+    }
+
+    const contaId = document.getElementById("idConta").value;
+    const cartaoId = document.getElementById("idCartao").value;
+
+    console.log("filtrarTransacoes contaId = " + contaId + ", cartaoId = " + cartaoId);
+    if (!contaId && !cartaoId) {
+        document.getElementById("tabela-transacoes").innerHTML = "";
+        carregarTransacoes(0);
+        return;
+    }
+
+    carregarTransacoesPorContaCartao(contaId, cartaoId, 0);
+}
+
+async function carregarTransacoesPorContaCartao(contaId, cartaoId, page) {
+    try {
+        const response = await fetch(
+            `http://localhost:8080/transacoes/listarPorContaCartao?idConta=${contaId}&idCartao=${cartaoId}&page=${page}&size=${pageSizeTransacao}&sortBy=${sortByTransacao}`
+        );
+
+        if (!response.ok) throw new Error("Erro ao buscar transações");
+
+        const data = await response.json();
+        const tabela = document.getElementById("tabela-transacoes");
+        tabela.innerHTML = "";
+
+        if (!data || !data.content || data.content.length === 0) {
+            tabela.innerHTML =
+                "<tr><td colspan='5'>⚠️ Nenhuma transação encontrada para o filtro informado.</td></tr>";
+            return;
+        }
+
+        data.content.forEach(transacao => {
+            const tr = document.createElement("tr");
+
+            const tdAcoes = document.createElement("td");
+            tdAcoes.innerHTML = `| <a href="#" onclick="handleActionId('transacao', 'editar', ${transacao.id})">✏️</a> |`;
+
+            const tdData = document.createElement("td");
+            tdData.textContent = formatarDataBrasil(transacao.data);
+
+            const tdValor = document.createElement("td");
+            tdValor.textContent = transacao.valor;
+
+            const tdDescricao = document.createElement("td");
+            tdDescricao.textContent = transacao.naturezaOperacao;
+
+            const tdQtd = document.createElement("td");
+            tdQtd.textContent = transacao.quantidadeVezes;
+
+            tr.append(tdAcoes, tdData, tdValor, tdDescricao, tdQtd);
+            tabela.appendChild(tr);
+        });
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 function validaData(valor) {
     // valida o formato AAAA-MM-DD
     if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) {
