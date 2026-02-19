@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/transacoes")
 @RequiredArgsConstructor
@@ -63,13 +65,17 @@ public class TransacaoController {
             return new TransacaoResponseDTO(
                     transacao.id(),
                     transacao.idUsuario(),
+                    transacao.naturezaOperacao(),
                     transacao.idConta(),
                     nomeConta,
+                    null,
                     transacao.idCartao(),
                     transacao.nomeCartao(),
-                    transacao.naturezaOperacao(),
+                    null,
+                    transacao.descricao(),
                     transacao.data(),
                     transacao.valor(),
+                    transacao.parcelaAtual(),
                     transacao.quantidadeVezes());
         });
 
@@ -96,21 +102,27 @@ public class TransacaoController {
         Page<TransacaoResponseDTO> transacoesComBanco = transacoes.map(transacao -> {
 
             String nomeConta = "";
+            BigDecimal saldoConta = null;
             if (transacao.idConta() != null) {
                 ContaCorrenteResponseDTO contaCorrente  = contaCorrenteService.buscaDadosContaCorrentePorId(transacao.idConta());
 
                 if (contaCorrente != null) {
                     nomeConta = contaCorrente.nomeBanco() + " - " + contaCorrente.numeroConta();
+                    saldoConta =  contaCorrente.saldo();
+                    System.out.println("O saldo da conta é " +  saldoConta.toString());
                     System.out.println("O nome da conta é " +  nomeConta);
                 }
             }
 
             String nomeCartao = "";
+            BigDecimal limiteCartao = null;
             if (transacao.idCartao() != null) {
                 CartaoCreditoResponseDTO cartaoCredito = cartaoCreditoService.buscaDadosCartaoCreditoPorId(transacao.idCartao());
 
                 if (cartaoCredito != null) {
                     nomeCartao = cartaoCredito.bandeira() + " - " +  cartaoCredito.nome();
+                    limiteCartao = cartaoCredito.limite();
+                    System.out.println("O limite do cartão é " +  limiteCartao);
                     System.out.println("O nome do cartão é " +  nomeCartao);
                 }
             }
@@ -118,13 +130,17 @@ public class TransacaoController {
             return new TransacaoResponseDTO(
                     transacao.id(),
                     transacao.idUsuario(),
+                    transacao.naturezaOperacao(),
                     transacao.idConta(),
                     nomeConta,
+                    saldoConta,
                     transacao.idCartao(),
                     nomeCartao,
-                    transacao.naturezaOperacao(),
+                    limiteCartao,
+                    transacao.descricao(),
                     transacao.data(),
                     transacao.valor(),
+                    transacao.parcelaAtual(),
                     transacao.quantidadeVezes());
         });
 

@@ -17,10 +17,12 @@ public class TransacaoEntity {
     @Id
     private Integer id;
     private Integer idUsuario;
+    private Integer naturezaOperacao;
     private Integer idConta;
     private Integer idCartao;
-    private String naturezaOperacao;
+    private String descricao;
     private Date data;
     private BigDecimal valor;
+    private Integer parcelaAtual;
     private Integer quantidadeVezes;
 }

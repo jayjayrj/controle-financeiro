@@ -44,11 +44,23 @@ public class TransacaoService {
             // Se for uma transação de Conta Corrente, atualizar saldo. Senão, atualizar limite do cartão
             if (transacaoRequestDTO.getIdConta() != null) {
                 BigDecimal saldoAtual = contaCorrenteService.buscarSaldoPorId(transacaoRequestDTO.getIdConta());
-                BigDecimal saldoAtualizado = saldoAtual.subtract(transacaoRequestDTO.getValor());
+                BigDecimal saldoAtualizado = null;
+                System.out.println("TransacaoService::gravarTransacoes::transacaoRequestDTO.getNaturezaOperacao() = " + transacaoRequestDTO.getNaturezaOperacao());
+                if (Integer.valueOf(0).equals(transacaoRequestDTO.getNaturezaOperacao())) {
+                    saldoAtualizado = saldoAtual.subtract(transacaoRequestDTO.getValor());
+                } else {
+                    saldoAtualizado = saldoAtual.add(transacaoRequestDTO.getValor());
+                }
                 contaCorrenteService.atualizarSaldoContaCorrente(transacaoRequestDTO.getIdConta(), saldoAtualizado);
             } else {
                 BigDecimal limiteAtual = cartaoCreditoService.buscarLimitePorId(transacaoRequestDTO.getIdCartao());
-                BigDecimal limiteAtualizado = limiteAtual.subtract(transacaoRequestDTO.getValor());
+                BigDecimal limiteAtualizado = null;
+                System.out.println("TransacaoService::gravarTransacoes::transacaoRequestDTO.getNaturezaOperacao() = " + transacaoRequestDTO.getNaturezaOperacao());
+                if (Integer.valueOf(0).equals(transacaoRequestDTO.getNaturezaOperacao())) {
+                    limiteAtualizado = limiteAtual.subtract(transacaoRequestDTO.getValor());
+                } else {
+                    limiteAtualizado = limiteAtual.add(transacaoRequestDTO.getValor());
+                }
                 cartaoCreditoService.atualizarLimiteCartaoCredito(transacaoRequestDTO.getIdCartao(), limiteAtualizado);
             }
 
@@ -104,16 +116,19 @@ public class TransacaoService {
         Optional<TransacaoEntity> entityOpt = transacaoRepository.findById(id);
 
         BigDecimal valorAntigo;
+        Integer naturezaAntiga;
         if (entityOpt.isPresent()) {
             TransacaoEntity entity = entityOpt.get();
 
-            // Guarda o valor antigo para uso futuro
+            // Guarda o natureza e valor antigo para uso futuro
+            naturezaAntiga = entity.getNaturezaOperacao();
             valorAntigo = entity.getValor();
 
             // Atualiza os campos necessários
+            entity.setNaturezaOperacao(transacaoRequestDTO.getNaturezaOperacao());
             entity.setIdConta(transacaoRequestDTO.getIdConta());
             entity.setIdCartao(transacaoRequestDTO.getIdCartao());
-            entity.setNaturezaOperacao(transacaoRequestDTO.getNaturezaOperacao());
+            entity.setDescricao(transacaoRequestDTO.getDescricao());
             entity.setData(transacaoRequestDTO.getData());
             entity.setValor(transacaoRequestDTO.getValor());
             entity.setQuantidadeVezes(transacaoRequestDTO.getQuantidadeVezes());
@@ -124,16 +139,36 @@ public class TransacaoService {
             if (transacaoRequestDTO.getIdConta() != null) {
                 BigDecimal saldoAtual = contaCorrenteService.buscarSaldoPorId(transacaoRequestDTO.getIdConta());
                 // Remove o valor antigo do saldo
-                BigDecimal saldoAtualizado = saldoAtual.add(valorAntigo);
+                BigDecimal saldoAtualizado;
+                // Se o valor antigo era despesa, adiciona o valor e vice-versa
+                if (Integer.valueOf(0).equals(naturezaAntiga)) {
+                    saldoAtualizado = saldoAtual.add(valorAntigo);
+                } else {
+                    saldoAtualizado = saldoAtual.subtract(valorAntigo);
+                }
                 // Atualiza o saldo com o valor alterado
-                saldoAtualizado = saldoAtualizado.subtract(transacaoRequestDTO.getValor());
+                if (Integer.valueOf(0).equals(transacaoRequestDTO.getNaturezaOperacao())) {
+                    saldoAtualizado = saldoAtualizado.subtract(transacaoRequestDTO.getValor());
+                } else {
+                    saldoAtualizado = saldoAtualizado.add(transacaoRequestDTO.getValor());
+                }
                 contaCorrenteService.atualizarSaldoContaCorrente(transacaoRequestDTO.getIdConta(), saldoAtualizado);
             } else {
                 BigDecimal limiteAtual = cartaoCreditoService.buscarLimitePorId(transacaoRequestDTO.getIdCartao());
                 // Remove o valor antigo do limite
-                BigDecimal limiteAtualizado = limiteAtual.add(valorAntigo);
+                BigDecimal limiteAtualizado;
+                // Se o valor antigo era despesa, adiciona o valor e vice-versa
+                if (Integer.valueOf(0).equals(naturezaAntiga)) { // 0 = Despesa
+                    limiteAtualizado = limiteAtual.add(valorAntigo);
+                } else {
+                    limiteAtualizado = limiteAtual.subtract(valorAntigo);
+                }
                 // Atualiza o limite com o valor alterado
-                limiteAtualizado = limiteAtualizado.subtract(transacaoRequestDTO.getValor());
+                if (Integer.valueOf(0).equals(transacaoRequestDTO.getNaturezaOperacao())) {  // 0 = Despesa
+                    limiteAtualizado = limiteAtualizado.subtract(transacaoRequestDTO.getValor());
+                } else {
+                    limiteAtualizado = limiteAtualizado.add(transacaoRequestDTO.getValor());
+                }
                 cartaoCreditoService.atualizarLimiteCartaoCredito(transacaoRequestDTO.getIdCartao(), limiteAtualizado);
             }
             return transacaoMapper.paraTransacaoResponseDTO(atualizado);
@@ -150,12 +185,22 @@ public class TransacaoService {
             if (entity.getIdConta() != null) {
                 BigDecimal saldoAtual = contaCorrenteService.buscarSaldoPorId(entity.getIdConta());
                 // Remove o valor do saldo
-                BigDecimal saldoAtualizado = saldoAtual.add(entity.getValor());
+                BigDecimal saldoAtualizado;
+                if (Integer.valueOf(0).equals(entity.getNaturezaOperacao())) { // 0 = Despesa
+                    saldoAtualizado = saldoAtual.add(entity.getValor());
+                } else {
+                    saldoAtualizado = saldoAtual.subtract(entity.getValor());
+                }
                 contaCorrenteService.atualizarSaldoContaCorrente(entity.getIdConta(), saldoAtualizado);
             } else {
                 BigDecimal limiteAtual = cartaoCreditoService.buscarLimitePorId(entity.getIdCartao());
                 // Remove o valor do limite
-                BigDecimal limiteAtualizado = limiteAtual.add(entity.getValor());
+                BigDecimal limiteAtualizado;
+                if (Integer.valueOf(0).equals(entity.getNaturezaOperacao())) { // 0 = Despesa
+                    limiteAtualizado = limiteAtual.add(entity.getValor());
+                } else {
+                    limiteAtualizado = limiteAtual.subtract(entity.getValor());
+                }
                 cartaoCreditoService.atualizarLimiteCartaoCredito(entity.getIdCartao(), limiteAtualizado);
             }
         }

@@ -17,7 +17,7 @@ class TransacaoEntityTest {
         TransacaoEntity transacao = TransacaoEntity.builder()
                 .id(1)
                 .conta(123)
-                .naturezaOperacao("DEPOSITO")
+                .descricao("DEPOSITO")
                 .data(hoje)
                 .valor(moeda)
                 .quantidadeVezes(2)
@@ -25,7 +25,7 @@ class TransacaoEntityTest {
 
         assertThat(transacao.getId()).isEqualTo(1);
         assertThat(transacao.getConta()).isEqualTo(123);
-        assertThat(transacao.getNaturezaOperacao()).isEqualTo("DEPOSITO");
+        assertThat(transacao.getDescricao()).isEqualTo("DEPOSITO");
         assertThat(transacao.getData()).isEqualTo(hoje);
         assertThat(transacao.getValor()).isEqualTo(moeda);
         assertThat(transacao.getQuantidadeVezes()).isEqualTo(2);
@@ -39,14 +39,14 @@ class TransacaoEntityTest {
         TransacaoEntity transacao = new TransacaoEntity();
         transacao.setId(2);
         transacao.setConta(456);
-        transacao.setNaturezaOperacao("SAQUE");
+        transacao.setDescricao("SAQUE");
         transacao.setData(data);
         transacao.setValor(moeda);
         transacao.setQuantidadeVezes(5);
 
         assertThat(transacao.getId()).isEqualTo(2);
         assertThat(transacao.getConta()).isEqualTo(456);
-        assertThat(transacao.getNaturezaOperacao()).isEqualTo("SAQUE");
+        assertThat(transacao.getDescricao()).isEqualTo("SAQUE");
         assertThat(transacao.getData()).isEqualTo(data);
         assertThat(transacao.getValor()).isEqualTo(moeda);
         assertThat(transacao.getQuantidadeVezes()).isEqualTo(5);

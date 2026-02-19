@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <style>
         .input-error {
-            border: 2px solid #ef4444;   /* vermelho */
+            border: 2px solid #ef4444 !important;   /* vermelho */
             background-color: #fef2f2;   /* fundo vermelho bem claro */
         }
 
@@ -244,6 +244,30 @@
             width: 20%; /* 5 colunas → 20*5 = 100 */
         }
 
+        #painelFiltros {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            max-height: 500px;
+        }
+
+        #painelFiltros.recolhido {
+            max-height: 0;
+        }
+
+        .barra-filtros {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+        .valor-despesa {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .valor-receita {
+            color: #16a34a;
+            font-weight: 600;
+        }
     </style>
     <style>@view-transition { navigation: auto; }</style>
     <!--script src="/_sdk/data_sdk.js" type="text/javascript"></script-->

@@ -67,7 +67,7 @@ async function onConfigChange(config) {
 
 async function carregarUsuario(id) {
     try {
-        const response = await fetch(`http://localhost:8080/user/${id}`);
+        const response = await fetch(`/user/${id}`);
         if (!response.ok) {
             throw new Error("Erro ao buscar usuário");
         }
@@ -81,7 +81,7 @@ async function carregarUsuario(id) {
 
 async function carregarBanco(id) {
     try {
-        const response = await fetch(`http://localhost:8080/bancos/${id}`);
+        const response = await fetch(`/bancos/${id}`);
         if (!response.ok) {
             throw new Error("Erro ao buscar banco");
         }
@@ -97,7 +97,7 @@ async function carregarSelectBancos() {
     try {
         console.log("Entrei no carregarSelectBancos");
         // Chama o endpoint do controller
-        const response = await fetch("http://localhost:8080/bancos/listar");
+        const response = await fetch("/bancos/listar");
         const data = await response.json();
         console.log("carregarSelectBancos fiz o fetch");
 
@@ -128,7 +128,7 @@ async function preencherSelectBanco() {
 
 async function carregarConta(id) {
     try {
-        const response = await fetch(`http://localhost:8080/contas/${id}`);
+        const response = await fetch(`/contas/${id}`);
         if (!response.ok) {
             throw new Error("Erro ao buscar conta");
         }
@@ -142,7 +142,7 @@ async function carregarConta(id) {
 
 async function carregarCartao(id) {
     try {
-        const response = await fetch(`http://localhost:8080/cartoesCredito/${id}`);
+        const response = await fetch(`/cartoesCredito/${id}`);
         if (!response.ok) {
             throw new Error("Erro ao buscar cartão");
         }
@@ -156,7 +156,7 @@ async function carregarCartao(id) {
 
 async function carregarTransacao(id) {
     try {
-        const response = await fetch(`http://localhost:8080/transacoes/${id}`);
+        const response = await fetch(`/transacoes/${id}`);
         if (!response.ok) {
             throw new Error("Erro ao buscar transação");
         }
@@ -173,7 +173,7 @@ async function carregarSelectsTransacoes() {
     try {
         console.log("Iniciei o carregamento de contas");
         // Chama o endpoint do controller
-        const response = await fetch("http://localhost:8080/contas/listar");
+        const response = await fetch("/contas/listar");
         const data = await response.json();
         console.log("carregarSelectsTransacoes fiz o fetch de contas");
 
@@ -197,7 +197,7 @@ async function carregarSelectsTransacoes() {
     try {
         console.log("Iniciei o carregamento de cartões");
         // Chama o endpoint do controller
-        const response = await fetch("http://localhost:8080/cartoesCredito/listar");
+        const response = await fetch("/cartoesCredito/listar");
         const data = await response.json();
         console.log("carregarSelectsTransacoes fiz o fetch de cartoes");
 
@@ -282,6 +282,13 @@ function preencherCamposConta(conta) {
 function preencherCamposTransacao(transacao) {
     try {
         document.getElementById("idTransacao").value = transacao.id;
+        // Preenche radio naturezaOperacao
+        const radio = document.querySelector(
+            `input[name="naturezaOperacao"][value="${transacao.naturezaOperacao}"]`
+        );
+        if (radio) {
+            radio.checked = true;
+        }
         // preenche o tipo de transação com base no que vem do banco
         if (transacao.idConta) {
             document.getElementById("tipoTransacao").value = 1;
@@ -294,9 +301,10 @@ function preencherCamposTransacao(transacao) {
         document.getElementById("idCartao").value = transacao.idCartao;
         // Coloca na sessão para poder carregar tardiamente
         sessionStorage.setItem("idCartao", transacao.idCartao);
-        document.getElementById("naturezaOperacao").value = transacao.naturezaOperacao;
+        document.getElementById("descricao").value = transacao.descricao;
         document.getElementById("data").value = transacao.data.substring(0, 10);
         document.getElementById("valor").value = transacao.valor;
+        document.getElementById("parcelaAtual").value = transacao.parcelaAtual;
         document.getElementById("quantidadeVezes").value = transacao.quantidadeVezes;
         selecionarTipoTransacao();
     } catch (error) {
@@ -311,8 +319,8 @@ const sortByBanco = "nome";
 async function carregarBancos(page) {
     console.log("Entrei no carregarBancos");
     try {
-        console.log("Vou chamar: "+ `http://localhost:8080/bancos/listar?page=${page}&size=${pageSizeBanco}&sortBy=${sortByBanco}`);
-        const response = await fetch(`http://localhost:8080/bancos/listar?page=${page}&size=${pageSizeBanco}&sortBy=${sortByBanco}`);
+        console.log("Vou chamar: "+ `/bancos/listar?page=${page}&size=${pageSizeBanco}&sortBy=${sortByBanco}`);
+        const response = await fetch(`/bancos/listar?page=${page}&size=${pageSizeBanco}&sortBy=${sortByBanco}`);
         console.log("Fiz a consulta");
         if (!response.ok) throw new Error("Erro ao buscar bancos");
         console.log("Passei da consulta");
@@ -374,8 +382,8 @@ const sortByConta = "nome";
 async function carregarContas(page) {
     console.log("Entrei no carregarContas");
     try {
-        console.log("Vou chamar: "+ `http://localhost:8080/contas/listar?page=${page}&size=${pageSizeConta}&sortBy=${sortByConta}`);
-        const response = await fetch(`http://localhost:8080/contas/listar?page=${page}&size=${pageSizeConta}&sortBy=${sortByConta}`);
+        console.log("Vou chamar: "+ `/contas/listar?page=${page}&size=${pageSizeConta}&sortBy=${sortByConta}`);
+        const response = await fetch(`/contas/listar?page=${page}&size=${pageSizeConta}&sortBy=${sortByConta}`);
         console.log("Fiz a consulta");
         if (!response.ok) throw new Error("Erro ao buscar contas");
         console.log("Passei da consulta");
@@ -447,8 +455,8 @@ const sortByCartao = "nome";
 async function carregarCartoes(page) {
     console.log("Entrei no carregarCartoes");
     try {
-        console.log("Vou chamar: "+ `http://localhost:8080/cartoesCredito/listar?page=${page}&size=${pageSizeCartao}&sortBy=${sortByCartao}`);
-        const response = await fetch(`http://localhost:8080/cartoesCredito/listar?page=${page}&size=${pageSizeCartao}&sortBy=${sortByCartao}`);
+        console.log("Vou chamar: "+ `/cartoesCredito/listar?page=${page}&size=${pageSizeCartao}&sortBy=${sortByCartao}`);
+        const response = await fetch(`/cartoesCredito/listar?page=${page}&size=${pageSizeCartao}&sortBy=${sortByCartao}`);
         console.log("Fiz a consulta");
         if (!response.ok) throw new Error("Erro ao buscar cartões");
         console.log("Passei da consulta");
@@ -530,8 +538,8 @@ const sortByTransacao = "nome";
 async function carregarTransacoes(page) {
     console.log("Entrei no carregarTransacoes");
     try {
-        console.log("Vou chamar: "+ `http://localhost:8080/transacoes/listar?page=${page}&size=${pageSizeTransacao}&sortBy=${sortByTransacao}`);
-        const response = await fetch(`http://localhost:8080/transacoes/listar?page=${page}&size=${pageSizeTransacao}&sortBy=${sortByTransacao}`);
+        console.log("Vou chamar: "+ `/transacoes/listar?page=${page}&size=${pageSizeTransacao}&sortBy=${sortByTransacao}`);
+        const response = await fetch(`/transacoes/listar?page=${page}&size=${pageSizeTransacao}&sortBy=${sortByTransacao}`);
         console.log("Fiz a consulta");
         if (!response.ok) throw new Error("Erro ao buscar transacoes");
         console.log("Passei da consulta");
@@ -555,20 +563,33 @@ async function carregarTransacoes(page) {
 
             // coluna valor
             const tdValor = document.createElement("td");
-            tdValor.textContent = transacao.valor;
+            // Formatar como moeda BRL
+            const valorFormatado = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(transacao.valor);
 
-            // coluna naturezaOperacao
-            const tdNaturezaOperacao = document.createElement("td");
-            tdNaturezaOperacao.textContent = transacao.naturezaOperacao;
+            tdValor.textContent = valorFormatado;
+
+            // Aplicar cor conforme natureza
+            if (transacao.naturezaOperacao === 0) {
+                tdValor.classList.add("valor-despesa");
+            } else {
+                tdValor.classList.add("valor-receita");
+            }
+
+            // coluna descricao
+            const tdDescricao = document.createElement("td");
+            tdDescricao.textContent = transacao.descricao;
 
             // coluna qtdRestante
             const tdQtdRestante = document.createElement("td");
-            tdQtdRestante.textContent = transacao.quantidadeVezes;
+            tdQtdRestante.textContent = transacao.parcelaAtual + "/" + transacao.quantidadeVezes;
 
             tr.appendChild(tdAcoes);
             tr.appendChild(tdData);
             tr.appendChild(tdValor);
-            tr.appendChild(tdNaturezaOperacao);
+            tr.appendChild(tdDescricao);
             tr.appendChild(tdQtdRestante);
 
             tabela.appendChild(tr);
@@ -603,6 +624,13 @@ function handleAction(modulo, acao) {
 
 function handleActionId(modulo, acao, id) {
     try{
+        const usuarioLogado = sessionStorage.getItem("usuarioLogado");
+        if (!usuarioLogado) {
+            sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
+            window.location.href = "index.html";
+            return;
+        }
+
         console.log("Entrei no handleActionId(modulo, acao, id)");
         const feedbackArea = document.getElementById('action-feedback');
         const feedbackIcon = document.getElementById('feedback-icon');
@@ -822,7 +850,7 @@ async function salvarEdicaoPerfil() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/user/" + usuarioLogado, {
+        const response = await fetch("/user/" + usuarioLogado, {
             method: "PUT",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(user)
@@ -854,7 +882,7 @@ async function salvarExclusaoPerfil() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/user/" + usuarioLogado, {
+        const response = await fetch("/user/" + usuarioLogado, {
             method: "DELETE"
         });
 
@@ -915,7 +943,7 @@ async function salvarInclusaoBanco() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/bancos", {
+        const response = await fetch("/bancos", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(banco)
@@ -957,7 +985,7 @@ async function salvarEdicaoBanco() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/bancos/" + idBanco, {
+        const response = await fetch("/bancos/" + idBanco, {
             method: "PUT",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(banco)
@@ -993,7 +1021,7 @@ async function salvarExclusaoBanco() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/bancos/" + idBanco, {
+        const response = await fetch("/bancos/" + idBanco, {
             method: "DELETE"
         });
 
@@ -1061,7 +1089,7 @@ async function salvarInclusaoConta() {
     };
 
     try {
-        const response = await fetch("http://localhost:8080/contas", {
+        const response = await fetch("/contas", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(conta)
@@ -1107,7 +1135,7 @@ async function salvarEdicaoConta() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/contas/" + idConta, {
+        const response = await fetch("/contas/" + idConta, {
             method: "PUT",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(conta)
@@ -1143,7 +1171,7 @@ async function salvarExclusaoConta() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/contas/" + idConta, {
+        const response = await fetch("/contas/" + idConta, {
             method: "DELETE"
         });
 
@@ -1214,7 +1242,7 @@ async function salvarInclusaoCartao() {
     };
 
     try {
-        const response = await fetch("http://localhost:8080/cartoesCredito", {
+        const response = await fetch("/cartoesCredito", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(cartao)
@@ -1262,7 +1290,7 @@ async function salvarEdicaoCartao() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/cartoesCredito/" + idCartao, {
+        const response = await fetch("/cartoesCredito/" + idCartao, {
             method: "PUT",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(cartao)
@@ -1298,7 +1326,7 @@ async function salvarExclusaoCartao() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/cartoesCredito/" + idCartao, {
+        const response = await fetch("/cartoesCredito/" + idCartao, {
             method: "DELETE"
         });
 
@@ -1319,13 +1347,14 @@ function verificaCamposTransacao() {
     const tipoTransacao = document.getElementById("tipoTransacao");
     const idConta = document.getElementById("idConta");
     const idCartao = document.getElementById("idCartao");
-    const naturezaOperacao = document.getElementById("naturezaOperacao");
+    const descricao = document.getElementById("descricao");
     const data = document.getElementById("data");
     const valor = document.getElementById("valor");
+    const parcelaAtual = document.getElementById("parcelaAtual");
     const quantidadeVezes = document.getElementById("quantidadeVezes");
 
     // remove erros anteriores
-    [tipoTransacao, idConta, idCartao, naturezaOperacao, data, valor, quantidadeVezes].forEach(campo => campo.classList.remove("input-error"));
+    [tipoTransacao, idConta, idCartao, descricao, data, valor, parcelaAtual, quantidadeVezes].forEach(campo => campo.classList.remove("input-error"));
 
     let valido = true;
 
@@ -1334,7 +1363,7 @@ function verificaCamposTransacao() {
     // se o tipo de transação for zero é cartão de crédito
     if (tipoTransacao.value === "0") {
         console.log("Tipo transação Cartão");
-        [tipoTransacao, idCartao, naturezaOperacao, data, valor].forEach(campo => {
+        [tipoTransacao, idCartao, descricao, data, valor, parcelaAtual, quantidadeVezes].forEach(campo => {
             if (!campo.value.trim()) {
                 campo.classList.add("input-error"); // aplica borda/sublinhado vermelho
                 valido = false;
@@ -1342,7 +1371,7 @@ function verificaCamposTransacao() {
         });
     } else {
         console.log("Tipo transação Conta");
-        [tipoTransacao, idConta, naturezaOperacao, data, valor].forEach(campo => {
+        [tipoTransacao, idConta, descricao, data, valor, parcelaAtual, quantidadeVezes].forEach(campo => {
             if (!campo.value.trim()) {
                 campo.classList.add("input-error"); // aplica borda/sublinhado vermelho
                 valido = false;
@@ -1371,11 +1400,13 @@ async function salvarInclusaoTransacao() {
         sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
         window.location.href = "index.html";
     }
+    const naturezaOperacao = document.querySelector('input[name="naturezaOperacao"]:checked').value;
     const idConta = document.getElementById("idConta");
     const idCartao = document.getElementById("idCartao");
-    const naturezaOperacao = document.getElementById("naturezaOperacao");
+    const descricao = document.getElementById("descricao");
     const data = document.getElementById("data");
     const valor = document.getElementById("valor");
+    const parcelaAtual = document.getElementById("parcelaAtual");
     const quantidadeVezes = document.getElementById("quantidadeVezes");
 
     if (!verificaCamposTransacao()) {
@@ -1383,20 +1414,25 @@ async function salvarInclusaoTransacao() {
     }
 
     console.log("O valor da data é: " + data.value);
+    console.log("O valor da natureza é: " + naturezaOperacao);
 
     // se passou na validação, envia
     const transacao = {
+        naturezaOperacao: naturezaOperacao,
         idConta: idConta.value.trim(),
         idCartao: idCartao.value.trim(),
-        naturezaOperacao: naturezaOperacao.value.trim(),
+        descricao: descricao.value.trim(),
         data: data.value.trim(),
         valor: valor.value.trim(),
+        parcelaAtual: parcelaAtual.value.trim(),
         quantidadeVezes: quantidadeVezes.value.trim(),
         usuarioLogado: usuarioLogado
     };
 
+    console.log("O JSON enviado foi: " + JSON.stringify(transacao));
+
     try {
-        const response = await fetch("http://localhost:8080/transacoes", {
+        const response = await fetch("/transacoes", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(transacao)
@@ -1418,11 +1454,13 @@ async function salvarInclusaoTransacao() {
 async function salvarEdicaoTransacao() {
     // pega os campos
     const campoIdTransacao = document.getElementById("idTransacao");
+    const naturezaOperacao = document.querySelector('input[name="naturezaOperacao"]:checked').value;
     const idConta = document.getElementById("idConta");
     const idCartao = document.getElementById("idCartao");
-    const naturezaOperacao = document.getElementById("naturezaOperacao");
+    const descricao = document.getElementById("descricao");
     const data = document.getElementById("data");
     const valor = document.getElementById("valor");
+    const parcelaAtual = document.getElementById("parcelaAtual");
     const quantidadeVezes = document.getElementById("quantidadeVezes");
 
     if (!verificaCamposTransacao()) {
@@ -1431,11 +1469,13 @@ async function salvarEdicaoTransacao() {
 
     // se passou na validação, envia
     const transacao = {
+        naturezaOperacao: naturezaOperacao,
         idConta: idConta.value.trim(),
         idCartao: idCartao.value.trim(),
-        naturezaOperacao: naturezaOperacao.value.trim(),
+        descricao: descricao.value.trim(),
         data: data.value.trim(),
         valor: valor.value.trim(),
+        parcelaAtual: parcelaAtual.value.trim(),
         quantidadeVezes: quantidadeVezes.value.trim()
     };
     const idTransacao = campoIdTransacao.value.trim();
@@ -1446,7 +1486,7 @@ async function salvarEdicaoTransacao() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/transacoes/" + idTransacao, {
+        const response = await fetch("/transacoes/" + idTransacao, {
             method: "PUT",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(transacao)
@@ -1482,7 +1522,7 @@ async function salvarExclusaoTransacao() {
             sessionStorage.setItem("signupSuccess", "❌ Usuário não logado. Favor logar novamente.");
             window.location.href = "index.html";
         }
-        const response = await fetch("http://localhost:8080/transacoes/" + idTransacao, {
+        const response = await fetch("/transacoes/" + idTransacao, {
             method: "DELETE"
         });
 
@@ -1535,25 +1575,33 @@ function filtrarTransacoes(tipoTransacao) {
 
     console.log("filtrarTransacoes contaId = " + contaId + ", cartaoId = " + cartaoId);
     if (!contaId && !cartaoId) {
+        document.getElementById("descricaoTipoTransacoes").textContent = "todas as";
+        document.getElementById("descricaoNomeTransacoes").textContent = "Contas e Cartões";
         document.getElementById("tabela-transacoes").innerHTML = "";
         carregarTransacoes(0);
         return;
     }
 
     carregarTransacoesPorContaCartao(contaId, cartaoId, 0);
+
+    toggleFiltros();
 }
 
 async function carregarTransacoesPorContaCartao(contaId, cartaoId, page) {
     try {
         const response = await fetch(
-            `http://localhost:8080/transacoes/listarPorContaCartao?idConta=${contaId}&idCartao=${cartaoId}&page=${page}&size=${pageSizeTransacao}&sortBy=${sortByTransacao}`
+            `/transacoes/listarPorContaCartao?idConta=${contaId}&idCartao=${cartaoId}&page=${page}&size=${pageSizeTransacao}&sortBy=${sortByTransacao}`
         );
 
         if (!response.ok) throw new Error("Erro ao buscar transações");
 
         const data = await response.json();
         const tabela = document.getElementById("tabela-transacoes");
+        const tfoot = document.getElementById("footer-transacoes");
+        valorTotal = 0;
+
         tabela.innerHTML = "";
+        tfoot.innerHTML = "";
 
         if (!data || !data.content || data.content.length === 0) {
             tabela.innerHTML =
@@ -1565,23 +1613,74 @@ async function carregarTransacoesPorContaCartao(contaId, cartaoId, page) {
             const tr = document.createElement("tr");
 
             const tdAcoes = document.createElement("td");
-            tdAcoes.innerHTML = `| <a href="#" onclick="handleActionId('transacao', 'editar', ${transacao.id})">✏️</a> |`;
+            tdAcoes.innerHTML = `| <a href="#" onclick="handleActionId('transacao', 'editar', ${transacao.id})" style="cursor:pointer">✏️</a> | <a href="#" onclick="handleActionId('transacao', 'excluir', ${transacao.id})" style="cursor:pointer">🗑️</a> |`;
 
             const tdData = document.createElement("td");
             tdData.textContent = formatarDataBrasil(transacao.data);
 
+            if (contaId != null && contaId !== "") {
+                valorTotal = transacao.saldoConta;
+            } else {
+                valorTotal = transacao.limiteCartao;
+            }
+
             const tdValor = document.createElement("td");
-            tdValor.textContent = transacao.valor;
+            // Formatar como moeda BRL
+            const valorFormatado = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(transacao.valor);
+
+            tdValor.textContent = valorFormatado;
+
+            // Aplicar cor conforme natureza
+            if (transacao.naturezaOperacao === 0) {
+                tdValor.classList.add("valor-despesa");
+            } else {
+                tdValor.classList.add("valor-receita");
+            }
 
             const tdDescricao = document.createElement("td");
-            tdDescricao.textContent = transacao.naturezaOperacao;
+            tdDescricao.textContent = transacao.descricao;
 
             const tdQtd = document.createElement("td");
-            tdQtd.textContent = transacao.quantidadeVezes;
+            tdQtd.textContent = transacao.parcelaAtual + "/" + transacao.quantidadeVezes;
 
             tr.append(tdAcoes, tdData, tdValor, tdDescricao, tdQtd);
             tabela.appendChild(tr);
         });
+
+        // ----- FOOTER -----
+
+        const trTotal = document.createElement("tr");
+        trTotal.style.fontWeight = "bold";
+        trTotal.style.backgroundColor = "#f3f4f6";
+
+        const tdLabel = document.createElement("td");
+        tdLabel.colSpan = 4;
+        tdLabel.style.textAlign = "right";
+
+        const tdTotal = document.createElement("td");
+
+        if (contaId != null && contaId !== "") {
+            tdLabel.textContent = "Saldo atual";
+        } else {
+            tdLabel.textContent = "Limite restante";
+        }
+
+        tdTotal.textContent = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(valorTotal);
+
+        if (valorTotal < 0) {
+            tdTotal.classList.add("valor-despesa");
+        } else {
+            tdTotal.classList.add("valor-receita");
+        }
+
+        trTotal.append(tdLabel, tdTotal);
+        tfoot.appendChild(trTotal);
 
     } catch (error) {
         console.error(error);
@@ -1607,6 +1706,20 @@ function validaData(valor) {
 function formatarDataBrasil(dataIso) {
     const [ano, mes, dia] = dataIso.substring(0, 10).split("-");
     return `${dia}/${mes}/${ano}`;
+}
+
+function toggleFiltros() {
+
+    const painel = document.getElementById("painelFiltros");
+    const botao = document.getElementById("btnToggleFiltros");
+
+    painel.classList.toggle("recolhido");
+
+    if (painel.classList.contains("recolhido")) {
+        botao.textContent = "⬇️ Filtros";
+    } else {
+        botao.textContent = "⬆️ Filtros";
+    }
 }
 
 (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ba50dcd466e5e0f',t:'MTc2NzgwNTY3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();

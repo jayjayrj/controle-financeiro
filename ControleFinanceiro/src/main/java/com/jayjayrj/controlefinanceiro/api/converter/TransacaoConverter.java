@@ -17,11 +17,13 @@ public class TransacaoConverter {
         return TransacaoEntity.builder()
                 .id(random.nextInt())
                 .idUsuario(transacaoDTO.getIdUsuario())
+                .naturezaOperacao(transacaoDTO.getNaturezaOperacao())
                 .idConta(transacaoDTO.getIdConta())
                 .idCartao(transacaoDTO.getIdCartao())
-                .naturezaOperacao(transacaoDTO.getNaturezaOperacao())
+                .descricao(transacaoDTO.getDescricao())
                 .data(transacaoDTO.getData())
                 .valor(transacaoDTO.getValor())
+                .parcelaAtual(transacaoDTO.getParcelaAtual())
                 .quantidadeVezes(transacaoDTO.getQuantidadeVezes())
                 .build();
     }
