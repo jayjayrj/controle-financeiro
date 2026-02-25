@@ -1,16 +1,16 @@
 <div class="barra-filtros">
-    <button onclick="toggleFiltros()" id="btnToggleFiltros">
+    <button onclick="toggleFiltrosTransacao()" id="btnToggleFiltros">
         ⬆️️ Filtros
     </button>
 </div>
 
 <div id="painelFiltros">
-    <div class="mb-4" id="divConta"><label for="idConta" class="opacity-80">Listar por Conta Corrente</label>
+    <div class="mb-4" id="divConta"><label for="idConta" class="opacity-80">Listar por Conta Corrente:</label>
         <select id="idConta" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" onchange="filtrarTransacoes(1)">
             <option value="">-- Escolha a conta corrente --</option>
         </select>
     </div>
-    <div class="mb-4" id="divCartao"><label for="idCartao" class="opacity-80">Listar por Cartão de Crédito</label>
+    <div class="mb-4" id="divCartao"><label for="idCartao" class="opacity-80">Listar por Cartão de Crédito:</label>
         <select id="idCartao" class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus transition-all" onchange="filtrarTransacoes(0)">
             <option value="">-- Escolha o cartão de crédito --</option>
         </select>
